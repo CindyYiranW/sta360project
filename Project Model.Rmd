@@ -12,11 +12,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r packages}
 library(tidyverse)
 library(dplyr)
+library(glmnet)
 ```
 
+## Data Cleanup
 ```{r data cleanup}
 data <- read.table("rawdata.txt", 
                col.names=c('stops', 'pop', 'past.arrests', 'precinct', 'eth', 'crime'), 
                fill=FALSE, 
                strip.white=TRUE)
+```
+
+
+## Exploratory Data Analysis
+What was the most common "reason for stop"
+
+```{r eda}
 ```
