@@ -1,0 +1,22 @@
+---
+title: "Project Model"
+author: "Lynn Fan"
+date: "4/26/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r data cleanup}
+data <- read.table("rawdata.txt", 
+               col.names=c('stops', 'pop', 'past.arrests', 'precinct', 'eth', 'crime'), 
+               fill=FALSE, 
+               strip.white=TRUE)
+```
