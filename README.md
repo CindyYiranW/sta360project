@@ -10,9 +10,17 @@ to model proportion of stops and predict proportion of stops in different precin
 ## Hypothesis 
 Police stop pedestrians based solely on past arrest rate in different racial groups, controlling for precinct and crime type
 
+## Prior
+last year's arrest rate as prior?
+
 ## Model
 If variance inflated -> negative binomial instead of Poisson
 If missing predictor -> inflated variance
+if variance >> mean, can we conclude that the variance is inflated?
+Should we use overdispersed Poisson instead of Negative Binomial when we observe inflated variance?
 
 ## Sampling
-Metropolis
+How do we do negative binomial regression inside MCMC?
+Metropolis?
+Why don't we use MCMC instead
+How do we get predictive?
