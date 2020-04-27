@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(dplyr)
 library(glmnet)
+library(car)
+library(R2WinBUGS)
+library(MASS)
 ```
 
 ## Data Cleanup
@@ -25,7 +28,12 @@ data <- read.table("rawdata.txt",
 
 
 ## Exploratory Data Analysis
-What was the most common "reason for stop"
+```{r dispersion}
+r <- c(mean(data$stops), var(data$stops))
+c(mean=r[1], var=r[2], ratio=r[2]/r[1])
+```
+Overdispersed, so we should do Negative Binomial instead of Poisson.
 
-```{r eda}
+```{r neg-bin}
+model_nb <- glm.nb(stops~, data=data)
 ```
