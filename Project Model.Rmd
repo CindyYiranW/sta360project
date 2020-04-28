@@ -24,6 +24,7 @@ install.packages("glmmADMB",
                   type="source")
 library(glmmADMB)
 library(lme4)
+library(tidyr)
 ```
 
 ## Data Cleanup
@@ -43,7 +44,7 @@ c(mean=r[1], var=r[2], ratio=r[2]/r[1])
 Overdispersed, so we should do Negative Binomial instead of Poisson.
 
 ```{r regression}
-stops<-data$stops ; ethi<-as.factor(data$eth) ; precinct<-as.factor(data$precinct)
+stops<-data$stops ; ethi<-as.factor(data$eth) ; as.factor(precinct<-data$precinct);arrest=data$past.arrests
 overdisp_fun <- function(model) {
     rdf <- df.residual(model)
     rp <- residuals(model,type="pearson")
@@ -60,6 +61,47 @@ overdisp_fun(fit.poi)
 fit.nb <- glmer.nb(stops~1+ethi+(1|precinct), verbose=TRUE)
 summary(fit.nb)
 overdisp_fun(fit.nb)
+```
+
+```{r dalao}
+# Data from NYC police stops
+
+# Read in data
+n <- nrow(data)
+precinct.number <- unique(data$precinct)
+n.precinct <- length(precinct.number)
+precincts <- rep(NA,n)
+pblack <- rep(NA,n.precinct)
+for (i in 1:n.precinct) {
+  precincts[precinct.original==precinct.number[i]] <- i
+  temp <- data[data$precinct==i,]
+  blackpop <- temp[temp$eth==1,]$pop[1]
+  totalpop <- temp[temp$eth==1,]$pop[1]+temp[temp$eth==2,]$pop[1]+temp[temp$eth==3,]$pop[1]
+  pblack[i]<-blackpop/totalpop
+}
+precinct.category <- ifelse (pblack < .1, 1, ifelse (pblack < .4, 2, 3))
+dcjs <- log(arrests*15/12)
+dcjs[which(!is.finite(dcjs))] <- 0
+crime <- data$crime
+pop <- data$pop
+stop_df <- as.data.frame (cbind (stops, ethi, precincts, crime, precinct.category, arrests, dcjs, pop))
+# Multilevel analysis of NYC police stops
+
+# lmer() fits
+M1 <- as.list (rep (NA, 12))
+M2 <- as.list (rep (NA, 12))
+index <- 0
+for (j in 1:3){
+  for (k in 1:4){
+    index <- index + 1
+    ok <- precinct.category==j & crime==k
+    M1[[index]] <- glmer(stops ~ dcjs + (1|ethi) + (1|precincts),
+     family=poisson(link="log"), subset=ok, data=stop_df)
+    M2[[index]] <- glmer.nb(stops~1+ethi+(1|precincts), verbose=TRUE, subset=ok,data=stop_df)
+  }
+}
+M1[1]
+M2[1]
 ```
 
 ```{r mcmc}
