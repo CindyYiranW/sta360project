@@ -19,6 +19,10 @@ If missing predictor -> inflated variance
 if variance >> mean, can we conclude that the variance is inflated?
 Should we use overdispersed Poisson instead of Negative Binomial when we observe inflated variance?
 
+why do we use metropolis within gibbs?
+
+optimal acceptance ratio: 25%-50%
+
 ## Sampling
 How do we do negative binomial regression inside MCMC?
 Metropolis?

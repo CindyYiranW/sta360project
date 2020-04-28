@@ -22,6 +22,7 @@ install.packages("R2admb")
 install.packages("glmmADMB",
                   repos="http://glmmadmb.r-forge.r-project.org/repos",
                   type="source")
+library(R2admb)
 library(glmmADMB)
 library(lme4)
 library(tidyr)
@@ -44,7 +45,7 @@ c(mean=r[1], var=r[2], ratio=r[2]/r[1])
 Overdispersed, so we should do Negative Binomial instead of Poisson.
 
 ```{r regression}
-stops<-data$stops ; ethi<-as.factor(data$eth) ; as.factor(precinct<-data$precinct);arrest=data$past.arrests
+stops<-data$stops ; ethi<-as.factor(data$eth) ; precinct<-as.factor(data$precinct);arrest=data$past.arrests
 overdisp_fun <- function(model) {
     rdf <- df.residual(model)
     rp <- residuals(model,type="pearson")
@@ -63,17 +64,14 @@ summary(fit.nb)
 overdisp_fun(fit.nb)
 ```
 
-```{r dalao}
-# Data from NYC police stops
-
-# Read in data
+```{r hierarchial}
 n <- nrow(data)
 precinct.number <- unique(data$precinct)
 n.precinct <- length(precinct.number)
 precincts <- rep(NA,n)
 pblack <- rep(NA,n.precinct)
 for (i in 1:n.precinct) {
-  precincts[precinct.original==precinct.number[i]] <- i
+  precincts[data$precinct==precinct.number[i]] <- i
   temp <- data[data$precinct==i,]
   blackpop <- temp[temp$eth==1,]$pop[1]
   totalpop <- temp[temp$eth==1,]$pop[1]+temp[temp$eth==2,]$pop[1]+temp[temp$eth==3,]$pop[1]
@@ -95,20 +93,65 @@ for (j in 1:3){
   for (k in 1:4){
     index <- index + 1
     ok <- precinct.category==j & crime==k
-    M1[[index]] <- glmer(stops ~ dcjs + (1|ethi) + (1|precincts),
+    M1[[index]] <- glmer(stops ~ dcjs + ethi + (1|precincts),
      family=poisson(link="log"), subset=ok, data=stop_df)
-    M2[[index]] <- glmer.nb(stops~1+ethi+(1|precincts), verbose=TRUE, subset=ok,data=stop_df)
+    M2[[index]] <- glmer.nb(stops~dcjs+ethi+(1|precincts), verbose=TRUE, subset=ok,data=stop_df)
   }
 }
 M1[1]
 M2[1]
+anova(M1[[1]],M2[[1]])
 ```
+negative binomial with overdispersion effect
 
 ```{r mcmc}
+## Metropolis sampling
+## x    - current value of Markov chain (numeric vector)
+## targ - target log density function
+## prop - function with prototype function(x, ...) that generates 
+##   a proposal value from a symmetric proposal distribution
+library('mvtnorm')
+prop_mvnorm <- function(x, ...)
+  drop(rmvnorm(1, mean=x, ...))
+metropolis <- function(x, targ, prop=prop_mvnorm, ...) {
+  xnew <- prop(x)
+  lrat <- targ(xnew, ...) - targ(x, ...)
+  if(log(runif(1)) < lrat)
+    x <- xnew
+  return(x)
+}
+
+## Metropolis-in-Gibbs sampling
+## x    - current value of Markov chain (numeric vector)
+## targ - target log density function
+## ...  - arguments passed to 'targ'
+gibbs <- function(x, targ, ...) {
+  for(i in 1:length(x)) {
+    ## define full conditional
+    targ1 <- function(x1, ...) {
+      x[i] <- x1
+      targ(x, ...)
+    }
+    ## sample using Metropolis algorithm
+    x[i] <- metropolis(x[i], targ1, ...)
+  }
+  return(x)
+}
+```
+how do we know proposal distribution? MVN
+Poisson GLM with random effects
+If NB: link function for negative binomial, try a bayesian glm package, see the parametization, and change the link
+  for negative binomial, the r parameter:
+  you need to sample both from beta and r for posterior sampling
+  
+prior for beta: MVN or whatever in the package
+prior for r: uninformative uniform distribution
+
+```{r mh-songbird}
 # Useful variables
-y<-fledged ; X<-cbind(rep(1,length(y)),age,age^2)
+y<-stops ; X<-cbind(rep(1,length(y)),ethi)
 yX<-cbind(y,X)
-colnames(yX)<-c("fledged","intercept","age","age2") 
+colnames(yX)<-c("fledged","intercept","ethi") 
 
 n<-length(y) ; p<-dim(X)[2]
 
@@ -157,9 +200,9 @@ apply(BETA,2,effectiveSize) #ESS
 #### Figure 10.5 (traceplots & ACF)
 par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
 par(mfrow=c(1,3))
-blabs<-c(expression(beta[1]),expression(beta[2]),expression(beta[3]))
+blabs<-c(expression(beta[1]),expression(beta[2]))
 thin<-c(1,(1:1000)*(S/1000))
-j<-3
+j<-2
 plot(thin,BETA[thin,j],type="l",xlab="iteration",ylab=blabs[j])
 abline(h=mean(BETA[,j]) )
 
@@ -180,20 +223,16 @@ LPB<-array(0,dim=rep(gs,p))
 
 beta1<-seq(.27-1.75,.27+1.75,length=gs)
 beta2<-seq(.68-1.5,.68+1.5,length=gs)
-beta3<-seq(-.13-.25,-.13+.25,length=gs)
 
 beta1<-seq(.27-2.5,.27+2.5,length=gs)
 beta2<-seq(.68-2,.68+2,length=gs)
-beta3<-seq(-.13-.5,-.13+.5,length=gs)
 
 for(i in 1:gs) { for(j in 1:gs) { for(k in 1:gs) {
-  theta<-beta1[i]+beta2[j]*age+beta3[k]*age^2
+  theta<-beta1[i]+beta2[j]*data$eth+beta3[k]*data$precinct
   LPB[i,j,k]<-dnorm(beta1[i],beta0[1],sqrt(S0[1,1]),log=TRUE)  +
-    dnorm(beta2[j],beta0[2],sqrt(S0[2,2]),log=TRUE)  +
-    dnorm(beta3[k],beta0[3],sqrt(S0[3,3]),log=TRUE)  +
-    sum( dpois(fledged,exp(theta),log=TRUE )  )
-}} 
-  cat(i,"\n") }
+    dnorm(beta2[j],beta0[2],sqrt(S0[2,2]),log=TRUE)  
+    sum( dpois(stops,exp(theta),log=TRUE )  )
+}} }
 
 PB<-exp( LPB - max(LPB) )
 PB<-PB/sum(PB)
@@ -221,16 +260,7 @@ lines( qE[1,],col="black",lwd=1)
 lines( qE[2,],col="black",lwd=2)
 lines( qE[3,],col="black",lwd=1)
 
-```
-last year's arrest rate as prior (so 3 sets of priors) or MVN?
-how do we know proposal distribution?
-how do we apply it to this particular dataset?
-Poisson GLM with random effects
-If NB: link function for negative binomial, try a bayesian glm package, see the parametization, and change the link
-  for negative binomial, the r parameter:
-  you need to sample both from beta and r for posterior sampling
-  
-prior: MVN or whatever in the package
-  
+```  
 ### References:
 https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
+https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Lectures/songbird.R
