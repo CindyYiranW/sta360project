@@ -16,6 +16,14 @@ library(glmnet)
 library(car)
 library(R2WinBUGS)
 library(MASS)
+library(data.table)
+library(bayesm)
+install.packages("R2admb")
+install.packages("glmmADMB",
+                  repos="http://glmmadmb.r-forge.r-project.org/repos",
+                  type="source")
+library(glmmADMB)
+library(lme4)
 ```
 
 ## Data Cleanup
@@ -34,6 +42,153 @@ c(mean=r[1], var=r[2], ratio=r[2]/r[1])
 ```
 Overdispersed, so we should do Negative Binomial instead of Poisson.
 
-```{r neg-bin}
-model_nb <- glm.nb(stops~, data=data)
+```{r regression}
+stops<-data$stops ; ethi<-as.factor(data$eth) ; precinct<-as.factor(data$precinct)
+overdisp_fun <- function(model) {
+    rdf <- df.residual(model)
+    rp <- residuals(model,type="pearson")
+    Pearson.chisq <- sum(rp^2)
+    prat <- Pearson.chisq/rdf
+    pval <- pchisq(Pearson.chisq, df=rdf, lower.tail=FALSE)
+    c(chisq=Pearson.chisq,ratio=prat,rdf=rdf,p=pval)
+}
+# Poisson with random effects
+fit.poi <- glmer(stops~1+ethi+(1|precinct),family = poisson(link = "log"), nAGQ = 100)
+summary(fit.poi)
+overdisp_fun(fit.poi)
+# Negative Binomial
+fit.nb <- glmer.nb(stops~1+ethi+(1|precinct), verbose=TRUE)
+summary(fit.nb)
+overdisp_fun(fit.nb)
 ```
+
+```{r mcmc}
+# Useful variables
+y<-fledged ; X<-cbind(rep(1,length(y)),age,age^2)
+yX<-cbind(y,X)
+colnames(yX)<-c("fledged","intercept","age","age2") 
+
+n<-length(y) ; p<-dim(X)[2]
+
+# Prior parameters
+pmn.beta<-rep(0,p) # prior mean for beta
+psd.beta<-rep(10,p) # prior sd for beta
+
+# Metropolis settings
+var.prop<- var(log(y+1/2))*solve( t(X)%*%X ) #variance for proposal distribution
+beta<-rep(0,p) #initial beta
+S<-10000 # no. of MCMC samples
+BETA<-matrix(0,nrow=S,ncol=p) #container
+ac<-0 # no. of accepts in MCMc
+set.seed(1)
+
+## rmvnorm function for proposals
+rmvnorm<-function(n,mu,Sigma)
+{ # samples from the multivariate normal distribution
+  E<-matrix(rnorm(n*length(mu)),n,length(mu))
+  t(  t(E%*%chol(Sigma)) +c(mu))
+}
+
+## MCMC
+for(s in 1:S) {
+  
+  #proposal: sample a candidate beta
+  beta.p<- t(rmvnorm(1, beta, var.prop ))
+  
+  #evaluate: compute log-acceptance-ratio, then accept/reject
+  lhr<- sum(dpois(y,exp(X%*%beta.p),log=T)) -
+    sum(dpois(y,exp(X%*%beta),log=T)) +
+    sum(dnorm(beta.p,pmn.beta,psd.beta,log=T)) -
+    sum(dnorm(beta,pmn.beta,psd.beta,log=T))
+  
+  if( log(runif(1))< lhr ) { beta<-beta.p ; ac<-ac+1 }
+  
+  BETA[s,]<-beta #store sample
+}
+cat(ac/S,"\n") #acceptance rate of MCMC
+
+library(coda)
+apply(BETA,2,effectiveSize) #ESS
+
+
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs<-c(expression(beta[1]),expression(beta[2]),expression(beta[3]))
+thin<-c(1,(1:1000)*(S/1000))
+j<-3
+plot(thin,BETA[thin,j],type="l",xlab="iteration",ylab=blabs[j])
+abline(h=mean(BETA[,j]) )
+
+acf(BETA[,j],ci.col="gray",xlab="lag")
+acf(BETA[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+
+
+#### Figure 10.6
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+
+# Computing "true" density via grid approximation
+p<-3
+beta0<-rep(0,p)
+S0<-diag( rep(100,3))
+gs<-100
+LPB<-array(0,dim=rep(gs,p))
+
+beta1<-seq(.27-1.75,.27+1.75,length=gs)
+beta2<-seq(.68-1.5,.68+1.5,length=gs)
+beta3<-seq(-.13-.25,-.13+.25,length=gs)
+
+beta1<-seq(.27-2.5,.27+2.5,length=gs)
+beta2<-seq(.68-2,.68+2,length=gs)
+beta3<-seq(-.13-.5,-.13+.5,length=gs)
+
+for(i in 1:gs) { for(j in 1:gs) { for(k in 1:gs) {
+  theta<-beta1[i]+beta2[j]*age+beta3[k]*age^2
+  LPB[i,j,k]<-dnorm(beta1[i],beta0[1],sqrt(S0[1,1]),log=TRUE)  +
+    dnorm(beta2[j],beta0[2],sqrt(S0[2,2]),log=TRUE)  +
+    dnorm(beta3[k],beta0[3],sqrt(S0[3,3]),log=TRUE)  +
+    sum( dpois(fledged,exp(theta),log=TRUE )  )
+}} 
+  cat(i,"\n") }
+
+PB<-exp( LPB - max(LPB) )
+PB<-PB/sum(PB)
+
+PB1<-apply(PB,1,sum)
+PB2<-apply(PB,2,sum)
+PB3<-apply(PB,3,sum)
+PB23<-apply(PB,c(2,3),sum)
+
+# Plot true posterior marginals with MCMC estimated marginals
+plot(beta2,PB2*length(beta2)/(max(beta2)-min(beta2)) ,type="l",xlab=expression(beta[2]),ylab=expression(paste(italic("p("),beta[2],"|",italic("y)"),sep="") ) ,lwd=2,lty=2,col="gray")
+lines(density(BETA[,2],adj=2),lwd=2)
+
+plot(beta3,PB3*length(beta3)/(max(beta3)-min(beta3)),type="l",xlab=expression(beta[3]),ylab=expression(paste(italic("p("),beta[3],"|",italic("y)"),sep="") ),lwd=2,col="gray",lty=2)
+lines(density(BETA[,3],adj=2),lwd=2)
+
+# Plot posterior quantiles of predicted count rate of Poisson reg model
+Xs<-cbind(rep(1,6),1:6,(1:6)^2) 
+eXB.post<- exp(t(Xs%*%t(BETA )) )
+qE<-apply( eXB.post,2,quantile,probs=c(.025,.5,.975))
+
+plot( c(1,6),range(c(0,qE)),type="n",xlab="age",
+      ylab="number of offspring")
+lines( qE[1,],col="black",lwd=1)
+lines( qE[2,],col="black",lwd=2)
+lines( qE[3,],col="black",lwd=1)
+
+```
+last year's arrest rate as prior (so 3 sets of priors) or MVN?
+how do we know proposal distribution?
+how do we apply it to this particular dataset?
+Poisson GLM with random effects
+If NB: link function for negative binomial, try a bayesian glm package, see the parametization, and change the link
+  for negative binomial, the r parameter:
+  you need to sample both from beta and r for posterior sampling
+  
+prior: MVN or whatever in the package
+  
+### References:
+https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
