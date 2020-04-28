@@ -71,7 +71,6 @@ n.precinct <- length(precinct.number)
 precincts <- rep(NA,n)
 pblack <- rep(NA,n.precinct)
 for (i in 1:n.precinct) {
-  precincts[data$precinct==precinct.number[i]] <- i
   temp <- data[data$precinct==i,]
   blackpop <- temp[temp$eth==1,]$pop[1]
   totalpop <- temp[temp$eth==1,]$pop[1]+temp[temp$eth==2,]$pop[1]+temp[temp$eth==3,]$pop[1]
@@ -80,9 +79,10 @@ for (i in 1:n.precinct) {
 precinct.category <- ifelse (pblack < .1, 1, ifelse (pblack < .4, 2, 3))
 dcjs <- log(arrests*15/12)
 dcjs[which(!is.finite(dcjs))] <- 0
+arrests <- data$past.arrests
 crime <- data$crime
 pop <- data$pop
-stop_df <- as.data.frame (cbind (stops, ethi, precincts, crime, precinct.category, arrests, dcjs, pop))
+stop_df <- as.data.frame (cbind (stops, ethi, precinct, crime, precinct.category, arrests, dcjs))
 # Multilevel analysis of NYC police stops
 
 # lmer() fits
@@ -93,9 +93,9 @@ for (j in 1:3){
   for (k in 1:4){
     index <- index + 1
     ok <- precinct.category==j & crime==k
-    M1[[index]] <- glmer(stops ~ dcjs + ethi + (1|precincts),
+    M1[[index]] <- glmer(stops~dcjs+ethi+(1|precinct),
      family=poisson(link="log"), subset=ok, data=stop_df)
-    M2[[index]] <- glmer.nb(stops~dcjs+ethi+(1|precincts), verbose=TRUE, subset=ok,data=stop_df)
+    M2[[index]] <- glmer.nb(stops~dcjs+ethi+(1|precinct), verbose=TRUE,subset=ok,data=stop_df)
   }
 }
 M1[1]
