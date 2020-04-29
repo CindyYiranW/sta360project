@@ -74,7 +74,7 @@ overdisp_fun(fit.nb)
 n <- nrow(data)
 precinct.number <- unique(data$precinct)
 n.precinct <- length(precinct.number)
-precincts <- rep(NA,n)
+precincts <- rep(NA,n)p
 pblack <- rep(NA,n.precinct)
 for (i in 1:n.precinct) {
   temp <- data[data$precinct==i,]
@@ -100,8 +100,9 @@ for (j in 1:3){
   for (k in 1:4){
     index <- index + 1
     ok <- precinct.category==j & crime==k
-    M1[[index]] <- glmer(stops~1+dcjs+ethi+(1|precinct),
+    M1[[index]] <- glmer(stops~1+dcjs+ethi+(1|precinct), #Poisson with random effect
      family=poisson(link="log"), subset=ok, data=stop_df)
+    #Negative Binomial
     M2[[index]] <- glmer.nb(stops~1+dcjs+ethi+(1|precinct), verbose=TRUE,subset=ok,data=stop_df,nAGQ=0)
   }
 }
@@ -119,6 +120,123 @@ If NB: link function for negative binomial, try a bayesian glm package, see the 
   
 prior for beta: MVN or whatever in the package
 prior for r: uninformative uniform distribution
+
+```{r stop-cleanup}
+stop_clean <- as.data.frame(cbind(stop_df$stops,stop_df$precinct.category,stop_df$crime,stop_df$dcjs,stop_df$arrests,to.dummy(stop_df$ethi, "ethi")))
+colnames(stop_clean) <- c("stops","precinct.category","crime","dcjs","arrests","black","hispanic","white")
+``` 
+
+```{r bayesm-1}
+R=1000
+set.seed(66)
+simnegbin = function(X, beta, alpha) {
+  # Simulate from the Negative Binomial Regression
+  lambda = exp(X%*%beta)
+  y = NULL
+  for (j in 1:length(lambda)) { y = c(y, rnbinom(1, mu=lambda[j], size=alpha)) }
+  return(y)
+}
+data1<-stop_clean[precinct.category==1 & crime==1,]
+nobs = nrow(data1)
+nvar = 3 # Number of X variables
+alpha = 5
+Vbeta = diag(nvar)*0.01
+# Construct the regdata (containing X)
+simnegbindata = data1
+beta = c(-1.1052,1.0529, -0.2125,-0.7315) #what we get from negative binomial regression
+X<-cbind(rep(1,length(data1$stops)),data1$dcjs,data1$hispanic,data1$white)
+simnegbindata = list(y=simnegbin(X,beta,alpha), X=X, beta=beta)
+Data1 = simnegbindata
+Mcmc1 = list(R=R)
+out = rnegbinRw(Data=Data1, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out$alphadraw, tvalues=alpha)
+summary(out$betadraw, tvalues=beta)
+## plotting examples
+if(0){plot(out$betadraw)}
+```
+
+```{r predictive check}
+betadraws <- out$betadraw #posterior beta
+alphadraws <- out$alphadraw #posterior alpha
+z.mcmc <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws)){ 
+  z <- simnegbin(X,betadraws[i,],alphadraws[i]) #sampling from the posterior
+  z.mcmc <- rbind(z.mcmc, z)
+}
+ppc_dens_overlay(data1$stops, z.mcmc[940:1000,]) 
+```
+
+```{r predictive check}
+betadraws <- out$betadraw
+alphadraws <- out$alphadraw
+z.mcmc <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws)){ 
+  z <- simnegbin(X,betadraws[i,],alphadraws[i])
+  z.mcmc <- rbind(z.mcmc, z)
+}
+ppc_dens_overlay(data1$stops, z.mcmc[940:1000,]) 
+```
+
+```{r bayesian-2}
+data2<-stop_clean[precinct.category==2 & crime==1,]
+nobs = nrow(data2)
+# Construct the regdata (containing X)
+simnegbindata2 = data2
+beta2 = c(-0.2951,0.9412,-0.3686,-1.0353)
+X2<-cbind(rep(1,length(data2$stops)),data2$dcjs,data2$hispanic,data2$white)
+simnegbindata2 = list(y=simnegbin(X2,beta2,alpha), X=X2, beta=beta2)
+Data2 = simnegbindata2
+Mcmc2 = list(R=R)
+out2 = rnegbinRw(Data=Data2, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out2$alphadraw, tvalues=alpha)
+summary(out2$betadraw, tvalues=beta2)
+
+betadraws2 <- out$betadraw
+alphadraws2 <- out$alphadraw
+z.mcmc2 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws2)){ 
+  z <- simnegbin(X2,betadraws2[i,],alphadraws2[i])
+  z.mcmc2 <- rbind(z.mcmc2, z)
+}
+ppc_dens_overlay(data2$stops, z.mcmc2[940:1000,]) 
+```
+
+```{r bayesian-3}
+data3<-stop_clean[precinct.category==3 & crime==1,]
+nobs = nrow(data3)
+# Construct the regdata (containing X)
+simnegbindata3 = data3
+beta3 <- c(0.3637,0.8602,-0.5615,-1.0791)
+X3<-cbind(rep(1,length(data3$stops)),data3$dcjs,data3$hispanic,data3$white)
+simnegbindata3 = list(y=simnegbin(X3,beta3,alpha), X=X3, beta=beta3)
+Data3 = simnegbindata3
+Mcmc3 = list(R=R)
+out3 = rnegbinRw(Data=Data3, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out3$alphadraw, tvalues=alpha)
+summary(out3$betadraw, tvalues=beta3)
+
+betadraws3 <- out3$betadraw
+alphadraws3 <- out3$alphadraw
+z.mcmc3 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws3)){ 
+  z <- simnegbin(X3,betadraws3[i,],alphadraws3[i])
+  z.mcmc3 <- rbind(z.mcmc3, z)
+}
+ppc_dens_overlay(data3$stops, z.mcmc3[940:1000,]) 
+```
+
+### References:
+https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
+https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Lectures/songbird.R
+http://probability.ca/jeff/ftpdir/adaptex.pdf
+http://www2.geog.ucl.ac.uk/~mdisney/teaching/GEOGG121/sivia_skilling/mterop_hastings.pdf
 
 ```{r songbird}
 # Useful variables
@@ -164,54 +282,4 @@ library(coda)
 apply(BETA,2,effectiveSize) #ESS
 apply(R,1,effectiveSize)
 ```
-
-
-```{r stop-cleanup}
-stop_clean <- as.data.frame(cbind(stop_df$stops,stop_df$precinct.category,stop_df$crime,stop_df$dcjs,stop_df$arrests,to.dummy(stop_df$ethi, "ethi")))
-colnames(stop_clean) <- c("stops","precinct.category","crime","dcjs","arrests","black","hispanic","white")
-``` 
-
-```{r bayesm-1}
-R=1000
-set.seed(66)
-simnegbin = function(X, beta, alpha) {
-  # Simulate from the Negative Binomial Regression
-  lambda = exp(X%*%beta)
-  y = NULL
-  for (j in 1:length(lambda)) { y = c(y, rnbinom(1, mu=lambda[j], size=alpha)) }
-  return(y)
-}
-data1<-stop_clean[precinct.category==1 & crime==1,]
-nobs = nrow(data1)
-nvar = 3 # Number of X variables
-alpha = 5
-Vbeta = diag(nvar)*0.01
-# Construct the regdata (containing X)
-simnegbindata = data1
-beta = c(-1.1052,1.0529, -0.2125,-0.7315)
-X<-cbind(rep(1,length(data1$stops)),data1$dcjs,data1$hispanic,data1$white)
-simnegbindata = list(y=simnegbin(X,beta,alpha), X=X, beta=beta)
-Data1 = simnegbindata
-Mcmc1 = list(R=R)
-out = rnegbinRw(Data=Data1, Mcmc=list(R=R))
-cat("Summary of alpha/beta draw", fill=TRUE)
-summary(out$alphadraw, tvalues=alpha)
-summary(out$betadraw, tvalues=beta)
-## plotting examples
-if(0){plot(out$betadraw)}
-```
-
-```{r predictive check}
-# Plot posterior quantiles of predicted count rate of Poisson reg model
-eXB.post<- exp(t(X%*%t(BETA )) )
-qE<-apply( eXB.post,2,quantile,probs=c(.025,.5,.975))
-```
-
-### References:
-https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
-https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Lectures/songbird.R
-http://probability.ca/jeff/ftpdir/adaptex.pdf
-http://www2.geog.ucl.ac.uk/~mdisney/teaching/GEOGG121/sivia_skilling/mterop_hastings.pdf
-
-
 
