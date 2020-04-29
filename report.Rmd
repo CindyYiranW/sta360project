@@ -1,0 +1,55 @@
+---
+title: "Report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Introduction 
+
+### (i) Background Information
+
+Racial profiling in policing has always been a huge point of contention. It is defined as police practice that relies on certain racial characteristics they believe to be associated with crime. This issue is especially prominent in selective policing strategies such as "stop-and-frisk", i.e. deciding which pedestrains to search, question, or frisk, a program in New York City that has caused numerous civil rights controversies. Police have defended the strategy by claiming that, while stop-rates are higher for non-white citizens, it only reflects reasonable prior knowledge or experience such as historic crime rates by race, or that other counfounding factors such as variation between precincts (neighbourhoods) exists. 
+
+### (ii) Goals, relevant issues, and challenges 
+
+Our goal is to find out whether minorities (black and hispanic citizens) are disproportionately targeted even when taking into account to historic crime rates (approximated by arrest rates from the previous year) and variances in precinct as a random effect. To do this, we take the approach of model to predict the arrest 
+
+posterior sampling on regression parameters 
+after getting posterior sampler 
+--> predictive distribution, predict poission regression 
+
+
+### (iii) data sources, cleaning procedure, describe variables, limitations in the data? 
+
+
+## Limitations
+
+### (i) Limitations of the data 
+
+missing predictors, overdispersion, impossible to have every single predictor (i.e. every single factor the police considers when making a stop), that would include factors like age and gender of the pedestrain as well as many circumstantial cues. 
+
+### (ii) Limitation of the analysis 
+
+controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
+
+###(iii) Exploratory Data Analysis
+
+From the plots below, other than median income, all of our numeric predictors appear reasonable with no extreme outliers that would necessitate transformation. There are a few observations with median income of around $90,000, which is a large jump from around $70,000 where the next highest observations are. We log-transform median income to correct for the variable’s skewed distribution.
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
