@@ -22,6 +22,7 @@ Should we use overdispersed Poisson instead of Negative Binomial when we observe
 why do we use metropolis within gibbs?
 
 optimal acceptance ratio: 25%-50%
+r: positive and continuous 
 
 ## Sampling
 How do we do negative binomial regression inside MCMC?

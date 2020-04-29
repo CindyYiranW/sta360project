@@ -14,10 +14,10 @@ library(tidyverse)
 library(dplyr)
 library(glmnet)
 library(car)
-library(R2WinBUGS)
 library(MASS)
 library(data.table)
 library(bayesm)
+library(ggplot2)
 install.packages("R2admb")
 install.packages("glmmADMB",
                   repos="http://glmmadmb.r-forge.r-project.org/repos",
@@ -26,6 +26,12 @@ library(R2admb)
 library(glmmADMB)
 library(lme4)
 library(tidyr)
+library(mcmc)
+library(dplyr)
+library(reshape2)
+library(bayesplot)
+library(varhandle)
+library(loo)
 ```
 
 ## Data Cleanup
@@ -77,12 +83,13 @@ for (i in 1:n.precinct) {
   pblack[i]<-blackpop/totalpop
 }
 precinct.category <- ifelse (pblack < .1, 1, ifelse (pblack < .4, 2, 3))
+arrests <- data$past.arrests
 dcjs <- log(arrests*15/12)
 dcjs[which(!is.finite(dcjs))] <- 0
-arrests <- data$past.arrests
 crime <- data$crime
 pop <- data$pop
-stop_df <- as.data.frame (cbind (stops, ethi, precinct, crime, precinct.category, arrests, dcjs))
+stop_df <- as.data.frame (cbind(stops, ethi, precinct, crime, precinct.category, arrests, dcjs))
+stop_df$ethi <- as.factor(ethi)
 # Multilevel analysis of NYC police stops
 
 # lmer() fits
@@ -93,51 +100,17 @@ for (j in 1:3){
   for (k in 1:4){
     index <- index + 1
     ok <- precinct.category==j & crime==k
-    M1[[index]] <- glmer(stops~dcjs+ethi+(1|precinct),
+    M1[[index]] <- glmer(stops~1+dcjs+ethi+(1|precinct),
      family=poisson(link="log"), subset=ok, data=stop_df)
-    M2[[index]] <- glmer.nb(stops~dcjs+ethi+(1|precinct), verbose=TRUE,subset=ok,data=stop_df)
+    M2[[index]] <- glmer.nb(stops~1+dcjs+ethi+(1|precinct), verbose=TRUE,subset=ok,data=stop_df,nAGQ=0)
   }
 }
 M1[1]
 M2[1]
-anova(M1[[1]],M2[[1]])
+anova(M1[[2]],M2[[2]])
 ```
-negative binomial with overdispersion effect
+negative binomial with overdispersion effect 
 
-```{r mcmc}
-## Metropolis sampling
-## x    - current value of Markov chain (numeric vector)
-## targ - target log density function
-## prop - function with prototype function(x, ...) that generates 
-##   a proposal value from a symmetric proposal distribution
-library('mvtnorm')
-prop_mvnorm <- function(x, ...)
-  drop(rmvnorm(1, mean=x, ...))
-metropolis <- function(x, targ, prop=prop_mvnorm, ...) {
-  xnew <- prop(x)
-  lrat <- targ(xnew, ...) - targ(x, ...)
-  if(log(runif(1)) < lrat)
-    x <- xnew
-  return(x)
-}
-
-## Metropolis-in-Gibbs sampling
-## x    - current value of Markov chain (numeric vector)
-## targ - target log density function
-## ...  - arguments passed to 'targ'
-gibbs <- function(x, targ, ...) {
-  for(i in 1:length(x)) {
-    ## define full conditional
-    targ1 <- function(x1, ...) {
-      x[i] <- x1
-      targ(x, ...)
-    }
-    ## sample using Metropolis algorithm
-    x[i] <- metropolis(x[i], targ1, ...)
-  }
-  return(x)
-}
-```
 how do we know proposal distribution? MVN
 Poisson GLM with random effects
 If NB: link function for negative binomial, try a bayesian glm package, see the parametization, and change the link
@@ -147,23 +120,22 @@ If NB: link function for negative binomial, try a bayesian glm package, see the 
 prior for beta: MVN or whatever in the package
 prior for r: uninformative uniform distribution
 
-```{r mh-songbird}
+```{r songbird}
 # Useful variables
-y<-stops ; X<-cbind(rep(1,length(y)),ethi)
+y<-stops ; X<-cbind(rep(1,length(y)),dcjs,ethi)
 yX<-cbind(y,X)
-colnames(yX)<-c("fledged","intercept","ethi") 
-
+colnames(yX)<-c("stops","intercept","dcjs","ethi") 
 n<-length(y) ; p<-dim(X)[2]
-
 # Prior parameters
 pmn.beta<-rep(0,p) # prior mean for beta
 psd.beta<-rep(10,p) # prior sd for beta
-
 # Metropolis settings
-var.prop<- var(log(y+1/2))*solve( t(X)%*%X ) #variance for proposal distribution
+var.prop<- var(log(y+1/2))*solve( t(X)%*%X ) #variance for proposal distribution for beta
 beta<-rep(0,p) #initial beta
+r<-runif(1,0,1)#initial r
 S<-10000 # no. of MCMC samples
 BETA<-matrix(0,nrow=S,ncol=p) #container
+R<-rep(0,S)
 ac<-0 # no. of accepts in MCMc
 set.seed(1)
 
@@ -173,94 +145,73 @@ rmvnorm<-function(n,mu,Sigma)
   E<-matrix(rnorm(n*length(mu)),n,length(mu))
   t(  t(E%*%chol(Sigma)) +c(mu))
 }
-
 ## MCMC
 for(s in 1:S) {
   
   #proposal: sample a candidate beta
-  beta.p<- t(rmvnorm(1, beta, var.prop ))
-  
+  beta.p<- t(rmvnorm(1, beta, var.prop))
+  r.p<- rexp(1,1)
   #evaluate: compute log-acceptance-ratio, then accept/reject
-  lhr<- sum(dpois(y,exp(X%*%beta.p),log=T)) -
-    sum(dpois(y,exp(X%*%beta),log=T)) +
-    sum(dnorm(beta.p,pmn.beta,psd.beta,log=T)) -
-    sum(dnorm(beta,pmn.beta,psd.beta,log=T))
-  
-  if( log(runif(1))< lhr ) { beta<-beta.p ; ac<-ac+1 }
+  logr <- sum(dnorm(beta.p,pmn.beta,psd.beta,log=T)) - sum(dnorm(beta,pmn.beta,psd.beta,log=T)) +
+    dexp(r.p, 1) - dexp(r,1)
+  if( log(runif(1))< logr ) { beta<-beta.p ; r<-r.p;ac<-ac+1 }
   
   BETA[s,]<-beta #store sample
+  R[s]<-r
 }
 cat(ac/S,"\n") #acceptance rate of MCMC
-
 library(coda)
 apply(BETA,2,effectiveSize) #ESS
+apply(R,1,effectiveSize)
+```
 
 
+```{r stop-cleanup}
+stop_clean <- as.data.frame(cbind(stop_df$stops,stop_df$precinct.category,stop_df$crime,stop_df$dcjs,stop_df$arrests,to.dummy(stop_df$ethi, "ethi")))
+colnames(stop_clean) <- c("stops","precinct.category","crime","dcjs","arrests","black","hispanic","white")
+``` 
 
-#### Figure 10.5 (traceplots & ACF)
-par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
-par(mfrow=c(1,3))
-blabs<-c(expression(beta[1]),expression(beta[2]))
-thin<-c(1,(1:1000)*(S/1000))
-j<-2
-plot(thin,BETA[thin,j],type="l",xlab="iteration",ylab=blabs[j])
-abline(h=mean(BETA[,j]) )
+```{r bayesm-1}
+R=1000
+set.seed(66)
+simnegbin = function(X, beta, alpha) {
+  # Simulate from the Negative Binomial Regression
+  lambda = exp(X%*%beta)
+  y = NULL
+  for (j in 1:length(lambda)) { y = c(y, rnbinom(1, mu=lambda[j], size=alpha)) }
+  return(y)
+}
+data1<-stop_clean[precinct.category==1 & crime==1,]
+nobs = nrow(data1)
+nvar = 3 # Number of X variables
+alpha = 5
+Vbeta = diag(nvar)*0.01
+# Construct the regdata (containing X)
+simnegbindata = data1
+beta = c(-1.1052,1.0529, -0.2125,-0.7315)
+X<-cbind(rep(1,length(data1$stops)),data1$dcjs,data1$hispanic,data1$white)
+simnegbindata = list(y=simnegbin(X,beta,alpha), X=X, beta=beta)
+Data1 = simnegbindata
+Mcmc1 = list(R=R)
+out = rnegbinRw(Data=Data1, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out$alphadraw, tvalues=alpha)
+summary(out$betadraw, tvalues=beta)
+## plotting examples
+if(0){plot(out$betadraw)}
+```
 
-acf(BETA[,j],ci.col="gray",xlab="lag")
-acf(BETA[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
-
-
-#### Figure 10.6
-par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
-par(mfrow=c(1,3))
-
-# Computing "true" density via grid approximation
-p<-3
-beta0<-rep(0,p)
-S0<-diag( rep(100,3))
-gs<-100
-LPB<-array(0,dim=rep(gs,p))
-
-beta1<-seq(.27-1.75,.27+1.75,length=gs)
-beta2<-seq(.68-1.5,.68+1.5,length=gs)
-
-beta1<-seq(.27-2.5,.27+2.5,length=gs)
-beta2<-seq(.68-2,.68+2,length=gs)
-
-for(i in 1:gs) { for(j in 1:gs) { for(k in 1:gs) {
-  theta<-beta1[i]+beta2[j]*data$eth+beta3[k]*data$precinct
-  LPB[i,j,k]<-dnorm(beta1[i],beta0[1],sqrt(S0[1,1]),log=TRUE)  +
-    dnorm(beta2[j],beta0[2],sqrt(S0[2,2]),log=TRUE)  
-    sum( dpois(stops,exp(theta),log=TRUE )  )
-}} }
-
-PB<-exp( LPB - max(LPB) )
-PB<-PB/sum(PB)
-
-PB1<-apply(PB,1,sum)
-PB2<-apply(PB,2,sum)
-PB3<-apply(PB,3,sum)
-PB23<-apply(PB,c(2,3),sum)
-
-# Plot true posterior marginals with MCMC estimated marginals
-plot(beta2,PB2*length(beta2)/(max(beta2)-min(beta2)) ,type="l",xlab=expression(beta[2]),ylab=expression(paste(italic("p("),beta[2],"|",italic("y)"),sep="") ) ,lwd=2,lty=2,col="gray")
-lines(density(BETA[,2],adj=2),lwd=2)
-
-plot(beta3,PB3*length(beta3)/(max(beta3)-min(beta3)),type="l",xlab=expression(beta[3]),ylab=expression(paste(italic("p("),beta[3],"|",italic("y)"),sep="") ),lwd=2,col="gray",lty=2)
-lines(density(BETA[,3],adj=2),lwd=2)
-
+```{r predictive check}
 # Plot posterior quantiles of predicted count rate of Poisson reg model
-Xs<-cbind(rep(1,6),1:6,(1:6)^2) 
-eXB.post<- exp(t(Xs%*%t(BETA )) )
+eXB.post<- exp(t(X%*%t(BETA )) )
 qE<-apply( eXB.post,2,quantile,probs=c(.025,.5,.975))
+```
 
-plot( c(1,6),range(c(0,qE)),type="n",xlab="age",
-      ylab="number of offspring")
-lines( qE[1,],col="black",lwd=1)
-lines( qE[2,],col="black",lwd=2)
-lines( qE[3,],col="black",lwd=1)
-
-```  
 ### References:
 https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
 https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Lectures/songbird.R
+http://probability.ca/jeff/ftpdir/adaptex.pdf
+http://www2.geog.ucl.ac.uk/~mdisney/teaching/GEOGG121/sivia_skilling/mterop_hastings.pdf
+
+
+
