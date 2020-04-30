@@ -1,15 +1,15 @@
 ---
 title: "Report"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-##Introduction 
+## Introduction 
 
 ### (i) Background Information
 
@@ -77,12 +77,7 @@ MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions 
  1. Draw S samples $\beta_1$, ..., $\beta_S$ from the posterior distribution $[\beta|data]$.
  2. Conditional on each posterior sample $\beta_s$, draw a sample $Z_s$ from the Negative Binomial sampling model.
  
-<<<<<<< HEAD
 The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predive samples of $Z$. By comparing simulated samples with real data, we realize the posterior distribution tends to shrink towards 0 from positive side, with longer but thinner tails than the real distribution of data. It implies our posterior model is likely to predict more precincts with extreme stop rate, while failing to capture the trend of precincts with moderate stop rate. For most of the time, our model learns the variability of tails sufficiently. It captures the average stop rate for different precinct categories and crime types pretty well, although with comparatively large variance. 
-=======
-The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predive samples of $Z$.
-
->>>>>>> cc3034ebf45b27573919b1dfe7416aa0a995bd2e
 
 ## Interpretations and conclusions 
 
@@ -96,7 +91,7 @@ missing predictors, overdispersion, impossible to have every single predictor (i
 
 controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
 
-###(iii) Exploratory Data Analysis
+### (iii) Exploratory Data Analysis
 
 From the plots below, other than median income, all of our numeric predictors appear reasonable with no extreme outliers that would necessitate transformation. There are a few observations with median income of around $90,000, which is a large jump from around $70,000 where the next highest observations are. We log-transform median income to correct for the variable’s skewed distribution.
 
@@ -112,18 +107,5 @@ Because it is pos- sible that the patterns are systematically different in neigh
 
 We conducted separate comparisons for violent crimes, weapons offenses, property crimes, and drug crimes. For each, we modeled the number of stops yep by ethnic group e and precinct p for that crime type, using as a baseline the DCJS arrest count nep for that ethnic group, precinct, and crime type. 
 
-For each fit, we simulated three several independent Markov chains from different starting points, stopping when the simulations from each chain alone were as variable as those from all of the chains mixed together (Gelman(and Rubin 1992). We then gathered the last half of the simulated chains and used these to compute posterior estimates and(standard errors. For the analyses reported in this article, 10,000(iterations were always sufficient for mixing of the sequences.
+For each fit, we simulated three several independent Markov chains from different starting points, stopping when the simulations from each chain alone were as variable as those from all of the chains mixed together (Gelman and Rubin 1992). We then gathered the last half of the simulated chains and used these to compute posterior estimates and(standard errors. For the analyses reported in this article, 10,000(iterations were always sufficient for mixing of the sequences.
 
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
