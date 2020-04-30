@@ -20,10 +20,6 @@ library(MASS)
 library(data.table)
 library(bayesm)
 library(ggplot2)
-install.packages("R2admb")
-install.packages("glmmADMB",
-                  repos="http://glmmadmb.r-forge.r-project.org/repos",
-                  type="source")
 library(R2admb)
 library(glmmADMB)
 library(lme4)
@@ -281,32 +277,6 @@ ppc_stat_2d(data5$stops, z.mcmc5, stat = c("mean", "var"))
 ```
 
 
-```{r bayesian-5}
-data5<-stop_clean[precinct.category==1 & crime==3,]
-nobs = nrow(data5)
-# Construct the regdata (containing X)
-simnegbindata5 = data5
-beta5 <- c(-0.849341,0.961556,0.166298, 0.004212)
-X5<-cbind(rep(1,length(data5$stops)),data5$dcjs,data5$hispanic,data5$white)
-simnegbindata5 = list(y=simnegbin(X5,beta5,alpha), X=X5, beta=beta5)
-Data5 = simnegbindata5
-Mcmc5 = list(R=R)
-out5 = rnegbinRw(Data=Data5, Mcmc=list(R=R))
-cat("Summary of alpha/beta draw", fill=TRUE)
-summary(out5$alphadraw, tvalues=alpha)
-summary(out5$betadraw, tvalues=beta5)
-
-betadraws5 <- out5$betadraw
-alphadraws5 <- out5$alphadraw
-z.mcmc5 <- NULL
-# posterior predictive
-for(i in 1:nrow(betadraws5)){ 
-  z <- simnegbin(X5,betadraws5[i,],alphadraws5[i])
-  z.mcmc5 <- rbind(z.mcmc5, z)
-}
-ppc_dens_overlay(data5$stops, z.mcmc4[940:1000,]) 
-ppc_stat_2d(data5$stops, z.mcmc5, stat = c("mean", "var"))
-```
 
 
 ```{r bayesian-6}
