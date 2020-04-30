@@ -53,20 +53,30 @@ Y|\lambda, \alpha & \sim & NB(\lambda, \alpha)\\
 
 ## Methodology (prior, posterior)
 
-As we adopt hiearchical Negative Binomial distribution as our sampling model, there are 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution  
+We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution on regression coefficient $\beta$ and over-dispersion factor $\alpha$ as follows: 
+
 \[
-\begin{eqnarray}
+\begin{eqnarray} 
 \beta & \sim & \mathrm{N}(\overline{\beta}, A^{-1})\\
 \alpha & \sim & Gamma(a,b)\\
 \end{eqnarray}
 \]
 
-posterior sampling on regression parameters 
-after getting posterior sampler 
---> predictive distribution, predict poission regression 
+We generate 12 posterior distributions each on the parameters $\beta$ and $\alpha$. 
 
+## Posterior predictive and checks
 
-## Posterior predictive and checks 
+MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict arrest rate for this year, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
+
+\[
+[Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
+=[Z|\beta, \alpha][\beta|data]
+\]
+
+ 1. Draw S samples $\beta_1$, ..., $\beta_S$ from the posterior distribution $[\beta|data]$.
+ 2. Conditional on each posterior sample $\beta_s$, draw a sample $Z_s$ from the Negative Binomial sampling model.
+ 
+ Ignoring $\beta$, we generate posterior predive samples samples $Z_1$, ..., $Z_S$. 
 
 
 ## Interpretations and conclusions 
