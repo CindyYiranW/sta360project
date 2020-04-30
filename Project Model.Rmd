@@ -151,7 +151,7 @@ cat("Summary of alpha/beta draw", fill=TRUE)
 summary(out$alphadraw, tvalues=alpha)
 summary(out$betadraw, tvalues=beta)
 ## plotting examples
-if(0){plot(out$betadraw)}
+out$acceptrbeta
 ```
 
 ```{r predictive check}
