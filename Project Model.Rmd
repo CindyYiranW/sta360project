@@ -2,7 +2,9 @@
 title: "Project Model"
 author: "Lynn Fan"
 date: "4/26/2020"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -233,12 +235,33 @@ ppc_dens_overlay(data3$stops, z.mcmc3[940:1000,])
 ```
 
 ### References:
+http://www.stat.columbia.edu/~gelman/arm/examples/police/
+http://mc-stan.org/bayesplot/reference/bayesplot-package.html
+https://rdrr.io/cran/varhandle/man/to.dummy.html
+https://www.lakeheadu.ca/sites/default/files/uploads/77/Burke.pdf
+https://cran.r-project.org/web/packages/MHadaptive/MHadaptive.pdf
+https://rdrr.io/cran/bayesm/man/rnegbinRw.html
+http://pcl.missouri.edu/jeff/node/322
+http://georglsm.r-forge.r-project.org/site-projects/pdf/Hastings_within_Gibbs.pdf
+https://gist.github.com/gaberoo/4619102
+https://stats.stackexchange.com/questions/261552/what-is-a-hierarchical-model-that-can-estimated-via-the-metropolis-hastings-algo
+https://stats.stackexchange.com/questions/411321/mcmc-metropolis-hastings-sampler-estimation-of-multiple-parameters
+http://probability.ca/jeff/ftpdir/adaptex.pdf
+https://kieranrcampbell.github.io/blog/2015/03/31/tutorial-bayesian-nb-regression.html
+https://rdrr.io/cran/Bolstad2/man/bivnormMH.html
+https://rdrr.io/cran/SamplerCompare/src/R/metropolis.R
+http://www.stat.umn.edu/geyer/8701/package/mcmc.Rcheck/mcmc/html/metropolis.html
+https://arxiv.org/pdf/1308.0657.pdf
+https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Labs/Lab06/lab09.html#multiclass-logistic-regression
+https://blog.abhranil.net/2014/02/08/r-code-for-multivariate-random-walk-metropolis-hastings-sampling/
+https://en.wikipedia.org/wiki/Stop-and-frisk_in_New_York_City
+https://stats.stackexchange.com/questions/361501/metropolis-hastings-in-a-bayesian-hierarchical-model
 https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
 https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Lectures/songbird.R
 http://probability.ca/jeff/ftpdir/adaptex.pdf
 http://www2.geog.ucl.ac.uk/~mdisney/teaching/GEOGG121/sivia_skilling/mterop_hastings.pdf
 
-```{r songbird}
+```
 # Useful variables
 y<-stops ; X<-cbind(rep(1,length(y)),dcjs,ethi)
 yX<-cbind(y,X)
