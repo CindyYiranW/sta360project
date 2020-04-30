@@ -397,16 +397,27 @@ Y|\lambda, \alpha &amp; \sim &amp; NB(\lambda, \alpha)\\
 </div>
 <div id="methodology-prior-posterior" class="section level2">
 <h2>Methodology (prior, posterior)</h2>
-<p>As we adopt hiearchical Negative Binomial distribution, there are 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution, <span class="math display">\[
-\begin{eqnarray}
+<p>We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Applying prior distribution on regression coefficient <span class="math inline">\(\beta\)</span> and over-dispersion factor <span class="math inline">\(\alpha\)</span> as follows:</p>
+<p><span class="math display">\[
+\begin{eqnarray} 
 \beta &amp; \sim &amp; \mathrm{N}(\overline{\beta}, A^{-1})\\
 \alpha &amp; \sim &amp; Gamma(a,b)\\
 \end{eqnarray}
-\]</span> we gene</p>
-<p>posterior sampling on regression parameters after getting posterior sampler –&gt; predictive distribution, predict poission regression</p>
+\]</span></p>
+<p>We generate 12 posterior distributions on the parameters <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span>.</p>
 </div>
 <div id="posterior-predictive-and-checks" class="section level2">
 <h2>Posterior predictive and checks</h2>
+<p>MCMC samples of parameters <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year’s arrest rate, we could simulate the predictive distribution <span class="math inline">\([Z|data]\)</span> using the posterior distribution <span class="math inline">\([\beta|data]\)</span>. Based on the joint distribution of Z, <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[
+[Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
+=[Z|\beta, \alpha][\beta|data]
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li>Draw S samples <span class="math inline">\(\beta_1\)</span>, …, <span class="math inline">\(\beta_S\)</span> from the posterior distribution <span class="math inline">\([\beta|data]\)</span>.</li>
+<li>Conditional on each posterior sample <span class="math inline">\(\beta_s\)</span>, draw a sample <span class="math inline">\(Z_s\)</span> from the Negative Binomial sampling model.</li>
+</ol>
+<p>Ignoring <span class="math inline">\(\beta\)</span>, we generate posterior predive samples samples <span class="math inline">\(Z_1\)</span>, …, <span class="math inline">\(Z_S\)</span>.</p>
 </div>
 <div id="interpretations-and-conclusions" class="section level2">
 <h2>Interpretations and conclusions</h2>
