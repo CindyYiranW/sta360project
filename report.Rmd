@@ -40,15 +40,14 @@ We also want to divide up the precincts by the portion of black population in it
 
 Next, we want to incorporate the hiearchial element into the model, as we have 3 different precinct categories (<10%, 10-40%, or > 40% black population) and 4 different crime types (violent, weapons, property, drug). Previous literature has suggested that police reports having different strategies for different precinct, for example being more aggressive towards stopping pedestrains in high crime precincts, or having higher stop rates because some crime types are easier to spot than others. Hence, it is not ideal to do regression without distinguishing effects of different precincts and crime types. This calls for a hiearchial Negative Binomial program as follows: 
 
-$\lambda$ = mean
-$\alpha$ = over-dispersion factor 
+$\lambda$ = mean, $\alpha$ = over-dispersion factor 
 
 \[
+\lambda_i = exp(\vec{x^T\beta})\\
 \begin{eqnarray}
 Y|\lambda, \alpha & \sim & NB(\lambda, \alpha)\\ 
-\end{eqnarray}
-\\
-\lambda = Exp(x'\beta)
+\end{eqnarray} \\
+Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 1)}(\frac{1}{1+ \alpha\lambda_i})^{a^{-1}}(\frac{\alpha\lambda_i}{1+\alpha\lambda_i})^y_i
 \]
 
 ## Methodology (prior, posterior)
@@ -62,11 +61,11 @@ We have 12 sampling models defined by different combinations of 3 precinct categ
 \end{eqnarray}
 \]
 
-We generate 12 posterior distributions each on the parameters $\beta$ and $\alpha$. 
+We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$. 
 
 ## Posterior predictive and checks
 
-MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict arrest rate for this year, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
+MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year's arrest rate, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
 
 \[
 [Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
@@ -76,8 +75,7 @@ MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions 
  1. Draw S samples $\beta_1$, ..., $\beta_S$ from the posterior distribution $[\beta|data]$.
  2. Conditional on each posterior sample $\beta_s$, draw a sample $Z_s$ from the Negative Binomial sampling model.
  
- Ignoring $\beta$, we generate posterior predive samples samples $Z_1$, ..., $Z_S$. 
-
+The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predive samples of $Z$. By comparing simulated samples with real data, we realize the posterior distribution tends to shrink towards 0 from positive side, with longer but thinner tails than the real distribution of data. It implies our posterior model is likely to predict more precincts with extreme stop rate, while failing to capture the trend of precincts with moderate stop rate. For most of the time, our model learns the variability of tails sufficiently. It captures the average stop rate for different precinct categories and crime types pretty well, although with comparatively large variance. 
 
 ## Interpretations and conclusions 
 
