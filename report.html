@@ -388,11 +388,11 @@ summary {
 <p>Next, we want to incorporate the hiearchial element into the model, as we have 3 different precinct categories (&lt;10%, 10-40%, or &gt; 40% black population) and 4 different crime types (violent, weapons, property, drug). Previous literature has suggested that police reports having different strategies for different precinct, for example being more aggressive towards stopping pedestrains in high crime precincts, or having higher stop rates because some crime types are easier to spot than others. Hence, it is not ideal to do regression without distinguishing effects of different precincts and crime types. This calls for a hiearchial Negative Binomial program as follows:</p>
 <p><span class="math inline">\(\lambda\)</span> = mean, <span class="math inline">\(\alpha\)</span> = over-dispersion factor</p>
 <p><span class="math display">\[
-\begin{align}
 \lambda_i = exp(\vec{x^T\beta})\\
+\begin{eqnarray}
 Y|\lambda, \alpha &amp; \sim &amp; NB(\lambda, \alpha)\\ 
+\end{eqnarray} \\
 Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 1)}(\frac{1}{1+ \alpha\lambda_i})^{a^{-1}}(\frac{\alpha\lambda_i}{1+\alpha\lambda_i})^y_i
-\begin{align}
 \]</span></p>
 </div>
 <div id="methodology-prior-posterior" class="section level2">
@@ -417,7 +417,22 @@ Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 
 <li>Draw S samples <span class="math inline">\(\beta_1\)</span>, …, <span class="math inline">\(\beta_S\)</span> from the posterior distribution <span class="math inline">\([\beta|data]\)</span>.</li>
 <li>Conditional on each posterior sample <span class="math inline">\(\beta_s\)</span>, draw a sample <span class="math inline">\(Z_s\)</span> from the Negative Binomial sampling model.</li>
 </ol>
-<p>The resulting samples will be <span class="math inline">\((Z_1, \beta_1), ..., (Z_S, \beta_S)\)</span>. Ignoring <span class="math inline">\(\beta\)</span>, we generate posterior predive samples of <span class="math inline">\(Z\)</span>.</p>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD The resulting samples will be <span class="math inline">\((Z_1, \beta_1), ..., (Z_S, \beta_S)\)</span>. Ignoring <span class="math inline">\(\beta\)</span>, we generate posterior predive samples of <span class="math inline">\(Z\)</span>. By comparing simulated samples with real data, we realize the posterior distribution tends to shrink towards 0 from positive side, with longer but thinner tails than the real distribution of data. It implies our posterior model is likely to predict more precincts with extreme stop rate, while failing to capture the trend of precincts with moderate stop rate. For most of the time, our model learns the variability of tails sufficiently. It captures the average stop rate for different precinct categories and crime types pretty well, although with comparatively large variance. ======= The resulting samples will be <span class="math inline">\((Z_1, \beta_1), ..., (Z_S, \beta_S)\)</span>. Ignoring <span class="math inline">\(\beta\)</span>, we generate posterior predive samples of <span class="math inline">\(Z\)</span>.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>cc3034ebf45b27573919b1dfe7416aa0a995bd2e</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 </div>
 <div id="interpretations-and-conclusions" class="section level2">
 <h2>Interpretations and conclusions</h2>
