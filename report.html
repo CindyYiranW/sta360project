@@ -386,28 +386,48 @@ summary {
 <p>Since our data is count data, it is reasonable to use either the Poisson or Negative Binomial distribution for the sampling model. We realized by running quick summary statistics on response variable stop rate that there is overdispersion, i.e. the variance of 47254 is far greater than the mean of 146. This gives us the idea that Negative Binomial distribution is more appropriate to account for overdispersion factors. We also do not have any zero values, so zero-inflated versions of Poisson or Negative Binomial are not applicable. We validated this by fitting a Poisson and Negative Binomial regression model with precinct as the random effect, and by comparing the AIC/BIC it shows that indeed the Negative Binomial is a much better model fit.</p>
 <p>We also want to divide up the precincts by the portion of black population in it, as we want to account for previous police claims that relate to the demographics of a precinct. For example, police claim that they are more likely to stop black pedestrians in the case where the black pedestrian is in a predominantely white neighbourhood, and vice versa. Hence, by categorizing precincts based on the proportion of black population, we can use it to examine if disproportionate stopping of minorities still exists in predominantely white or black neighborhoods. Hence we created the variable <code>pblack</code> which categorizes precincts with &lt;10%, 10-40%, or &gt; 40% black population.</p>
 <p>Next, we want to incorporate the hiearchial element into the model, as we have 3 different precinct categories (&lt;10%, 10-40%, or &gt; 40% black population) and 4 different crime types (violent, weapons, property, drug). Previous literature has suggested that police reports having different strategies for different precinct, for example being more aggressive towards stopping pedestrains in high crime precincts, or having higher stop rates because some crime types are easier to spot than others. Hence, it is not ideal to do regression without distinguishing effects of different precincts and crime types. This calls for a hiearchial Negative Binomial program as follows:</p>
-<p><span class="math inline">\(\lambda\)</span> = mean <span class="math inline">\(\alpha\)</span> = over-dispersion factor</p>
+<p><span class="math inline">\(\lambda\)</span> = mean, <span class="math inline">\(\alpha\)</span> = over-dispersion factor</p>
 <p><span class="math display">\[
-\begin{eqnarray}
+\begin{align}
+\lambda_i = exp(\vec{x^T\beta})\\
 Y|\lambda, \alpha &amp; \sim &amp; NB(\lambda, \alpha)\\ 
-\end{eqnarray}
-\\
-\lambda = Exp(x'\beta)
+Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 1)}(\frac{1}{1+ \alpha\lambda_i})^{a^{-1}}(\frac{\alpha\lambda_i}{1+\alpha\lambda_i})^y_i
+\begin{align}
 \]</span></p>
 </div>
 <div id="methodology-prior-posterior" class="section level2">
 <h2>Methodology (prior, posterior)</h2>
+<<<<<<< HEAD
 <p>As we adopt hiearchical Negative Binomial distribution as our sampling model, there are 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution<br />
 <span class="math display">\[
 \begin{eqnarray}
+=======
+<p>We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution on regression coefficient <span class="math inline">\(\beta\)</span> and over-dispersion factor <span class="math inline">\(\alpha\)</span> as follows:</p>
+<p><span class="math display">\[
+\begin{eqnarray} 
+>>>>>>> 06416052d42b517f191fd061d5b79869cbbbd2d4
 \beta &amp; \sim &amp; \mathrm{N}(\overline{\beta}, A^{-1})\\
 \alpha &amp; \sim &amp; Gamma(a,b)\\
 \end{eqnarray}
 \]</span></p>
+<<<<<<< HEAD
 <p>posterior sampling on regression parameters after getting posterior sampler –&gt; predictive distribution, predict poission regression</p>
+=======
+<p>We generate 12 posterior distributions on the parameters <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span>.</p>
+>>>>>>> 06416052d42b517f191fd061d5b79869cbbbd2d4
 </div>
 <div id="posterior-predictive-and-checks" class="section level2">
 <h2>Posterior predictive and checks</h2>
+<p>MCMC samples of parameters <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year’s arrest rate, we could simulate the predictive distribution <span class="math inline">\([Z|data]\)</span> using the posterior distribution <span class="math inline">\([\beta|data]\)</span>. Based on the joint distribution of Z, <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[
+[Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
+=[Z|\beta, \alpha][\beta|data]
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li>Draw S samples <span class="math inline">\(\beta_1\)</span>, …, <span class="math inline">\(\beta_S\)</span> from the posterior distribution <span class="math inline">\([\beta|data]\)</span>.</li>
+<li>Conditional on each posterior sample <span class="math inline">\(\beta_s\)</span>, draw a sample <span class="math inline">\(Z_s\)</span> from the Negative Binomial sampling model.</li>
+</ol>
+<p>The resulting samples will be <span class="math inline">\((Z_1, \beta_1), ..., (Z_S, \beta_S)\)</span>. Ignoring <span class="math inline">\(\beta\)</span>, we generate posterior predive samples of <span class="math inline">\(Z\)</span>.</p>
 </div>
 <div id="interpretations-and-conclusions" class="section level2">
 <h2>Interpretations and conclusions</h2>
