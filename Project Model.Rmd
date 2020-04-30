@@ -76,7 +76,7 @@ overdisp_fun(fit.nb)
 n <- nrow(data)
 precinct.number <- unique(data$precinct)
 n.precinct <- length(precinct.number)
-precincts <- rep(NA,n)p
+precincts <- rep(NA,n)
 pblack <- rep(NA,n.precinct)
 for (i in 1:n.precinct) {
   temp <- data[data$precinct==i,]
@@ -168,18 +168,7 @@ for(i in 1:nrow(betadraws)){
   z.mcmc <- rbind(z.mcmc, z)
 }
 ppc_dens_overlay(data1$stops, z.mcmc[940:1000,]) 
-```
-
-```{r predictive check}
-betadraws <- out$betadraw
-alphadraws <- out$alphadraw
-z.mcmc <- NULL
-# posterior predictive
-for(i in 1:nrow(betadraws)){ 
-  z <- simnegbin(X,betadraws[i,],alphadraws[i])
-  z.mcmc <- rbind(z.mcmc, z)
-}
-ppc_dens_overlay(data1$stops, z.mcmc[940:1000,]) 
+ppc_stat_2d(data1$stops, z.mcmc, stat = c("mean", "var"))
 ```
 
 ```{r bayesian-2}
@@ -206,6 +195,7 @@ for(i in 1:nrow(betadraws2)){
   z.mcmc2 <- rbind(z.mcmc2, z)
 }
 ppc_dens_overlay(data2$stops, z.mcmc2[940:1000,]) 
+ppc_stat_2d(data2$stops, z.mcmc2, stat = c("mean", "var"))
 ```
 
 ```{r bayesian-3}
@@ -232,6 +222,281 @@ for(i in 1:nrow(betadraws3)){
   z.mcmc3 <- rbind(z.mcmc3, z)
 }
 ppc_dens_overlay(data3$stops, z.mcmc3[940:1000,]) 
+ppc_stat_2d(data3$stops, z.mcmc3, stat = c("mean", "var"))
+```
+
+```{r bayesian-4}
+data4<-stop_clean[precinct.category==1 & crime==2,]
+nobs = nrow(data4)
+# Construct the regdata (containing X)
+simnegbindata4 = data4
+beta4 <- c(0.3158, 1.0483 ,-0.1337,-0.7454)
+X4<-cbind(rep(1,length(data4$stops)),data4$dcjs,data4$hispanic,data4$white)
+simnegbindata4 = list(y=simnegbin(X4,beta4,alpha), X=X4, beta=beta4)
+Data4 = simnegbindata4
+Mcmc4 = list(R=R)
+out4 = rnegbinRw(Data=Data4, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out4$alphadraw, tvalues=alpha)
+summary(out4$betadraw, tvalues=beta4)
+
+betadraws4 <- out4$betadraw
+alphadraws4 <- out4$alphadraw
+z.mcmc4 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws4)){ 
+  z <- simnegbin(X4,betadraws4[i,],alphadraws4[i])
+  z.mcmc4 <- rbind(z.mcmc4, z)
+}
+ppc_dens_overlay(data4$stops, z.mcmc4[940:1000,]) 
+ppc_stat_2d(data4$stops, z.mcmc4, stat = c("mean", "var"))
+```
+
+
+```{r bayesian-5}
+data5<-stop_clean[precinct.category==1 & crime==3,]
+nobs = nrow(data5)
+# Construct the regdata (containing X)
+simnegbindata5 = data5
+beta5 <- c(-0.849341,0.961556,0.166298, 0.004212)
+X5<-cbind(rep(1,length(data5$stops)),data5$dcjs,data5$hispanic,data5$white)
+simnegbindata5 = list(y=simnegbin(X5,beta5,alpha), X=X5, beta=beta5)
+Data5 = simnegbindata5
+Mcmc5 = list(R=R)
+out5 = rnegbinRw(Data=Data5, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out5$alphadraw, tvalues=alpha)
+summary(out5$betadraw, tvalues=beta5)
+
+betadraws5 <- out5$betadraw
+alphadraws5 <- out5$alphadraw
+z.mcmc5 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws5)){ 
+  z <- simnegbin(X5,betadraws5[i,],alphadraws5[i])
+  z.mcmc5 <- rbind(z.mcmc5, z)
+}
+ppc_dens_overlay(data5$stops, z.mcmc4[940:1000,]) 
+ppc_stat_2d(data5$stops, z.mcmc5, stat = c("mean", "var"))
+```
+
+
+```{r bayesian-5}
+data5<-stop_clean[precinct.category==1 & crime==3,]
+nobs = nrow(data5)
+# Construct the regdata (containing X)
+simnegbindata5 = data5
+beta5 <- c(-0.849341,0.961556,0.166298, 0.004212)
+X5<-cbind(rep(1,length(data5$stops)),data5$dcjs,data5$hispanic,data5$white)
+simnegbindata5 = list(y=simnegbin(X5,beta5,alpha), X=X5, beta=beta5)
+Data5 = simnegbindata5
+Mcmc5 = list(R=R)
+out5 = rnegbinRw(Data=Data5, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out5$alphadraw, tvalues=alpha)
+summary(out5$betadraw, tvalues=beta5)
+
+betadraws5 <- out5$betadraw
+alphadraws5 <- out5$alphadraw
+z.mcmc5 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws5)){ 
+  z <- simnegbin(X5,betadraws5[i,],alphadraws5[i])
+  z.mcmc5 <- rbind(z.mcmc5, z)
+}
+ppc_dens_overlay(data5$stops, z.mcmc4[940:1000,]) 
+ppc_stat_2d(data5$stops, z.mcmc5, stat = c("mean", "var"))
+```
+
+
+```{r bayesian-6}
+data6<-stop_clean[precinct.category==1 & crime==4,]
+nobs = nrow(data6)
+# Construct the regdata (containing X)
+simnegbindata6 = data6
+beta6 <- c(0.0846, 0.6786,0.1546,-0.3825)
+X6<-cbind(rep(1,length(data6$stops)),data6$dcjs,data6$hispanic,data6$white)
+simnegbindata6 = list(y=simnegbin(X6,beta6,alpha), X=X6, beta=beta6)
+Data6 = simnegbindata6
+Mcmc6 = list(R=R)
+out6 = rnegbinRw(Data=Data6, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out6$alphadraw, tvalues=alpha)
+summary(out6$betadraw, tvalues=beta6)
+
+betadraws6 <- out6$betadraw
+alphadraws6 <- out6$alphadraw
+z.mcmc6 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws6)){ 
+  z <- simnegbin(X6,betadraws6[i,],alphadraws6[i])
+  z.mcmc6 <- rbind(z.mcmc5, z)
+}
+ppc_dens_overlay(data6$stops, z.mcmc6[940:1000,]) 
+ppc_stat_2d(data6$stops, z.mcmc6, stat = c("mean", "var"))
+```
+
+```{r bayesian-7}
+data7<-stop_clean[precinct.category==2 & crime==2,]
+nobs = nrow(data7)
+# Construct the regdata (containing X)
+simnegbindata7 = data7
+beta7 <- c(0.8441,0.9329,-8.705e-05,-0.5229) #M2[[6]]
+X7<-cbind(rep(1,length(data7$stops)),data7$dcjs,data7$hispanic,data7$white)
+simnegbindata7 = list(y=simnegbin(X7,beta7,alpha), X=X7, beta=beta7)
+Data7 = simnegbindata7
+Mcmc7 = list(R=R)
+out7 = rnegbinRw(Data=Data7, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out7$alphadraw, tvalues=alpha)
+summary(out7$betadraw, tvalues=beta7)
+
+betadraws7 <- out7$betadraw
+alphadraws7 <- out7$alphadraw
+z.mcmc7 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws7)){ 
+  z <- simnegbin(X7,betadraws7[i,],alphadraws7[i])
+  z.mcmc7 <- rbind(z.mcmc7, z)
+}
+ppc_dens_overlay(data7$stops, z.mcmc7[940:1000,]) 
+ppc_stat_2d(data7$stops, z.mcmc7, stat = c("mean", "var"))
+```
+
+
+```{r bayesian-8}
+data8<-stop_clean[precinct.category==2 & crime==3,]
+nobs = nrow(data8)
+# Construct the regdata (containing X)
+simnegbindata8 = data8
+beta8 <- c(0.2109,0.7563,0.4820,0.2032 ) #M2[[7]]
+X8<-cbind(rep(1,length(data8$stops)),data8$dcjs,data8$hispanic,data8$white)
+simnegbindata8 = list(y=simnegbin(X8,beta8,alpha), X=X8, beta=beta8)
+Data8 = simnegbindata8
+Mcmc8 = list(R=R)
+out8 = rnegbinRw(Data=Data8, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out8$alphadraw, tvalues=alpha)
+summary(out8$betadraw, tvalues=beta8)
+
+betadraws8 <- out8$betadraw
+alphadraws8 <- out8$alphadraw
+z.mcmc8 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws8)){ 
+  z <- simnegbin(X8,betadraws8[i,],alphadraws8[i])
+  z.mcmc8 <- rbind(z.mcmc8, z)
+}
+ppc_dens_overlay(data8$stops, z.mcmc8[940:1000,]) 
+ppc_stat_2d(data8$stops, z.mcmc8, stat = c("mean", "var"))
+```
+
+```{r bayesian-9}
+data9<-stop_clean[precinct.category==2 & crime==4,]
+nobs = nrow(data9)
+# Construct the regdata (containing X)
+simnegbindata9 = data9
+beta9 <- c(-0.26012,0.72009,0.09347,-0.13026) #M2[[8]]
+X9<-cbind(rep(1,length(data9$stops)),data9$dcjs,data9$hispanic,data9$white)
+simnegbindata9 = list(y=simnegbin(X9,beta9,alpha), X=X9, beta=beta9)
+Data9 = simnegbindata9
+Mcmc9 = list(R=R)
+out9 = rnegbinRw(Data=Data9, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out9$alphadraw, tvalues=alpha)
+summary(out9$betadraw, tvalues=beta9)
+
+betadraws9 <- out9$betadraw
+alphadraws9 <- out9$alphadraw
+z.mcmc9 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws9)){ 
+  z <- simnegbin(X9,betadraws9[i,],alphadraws9[i])
+  z.mcmc9 <- rbind(z.mcmc9, z)
+}
+ppc_dens_overlay(data9$stops, z.mcmc9[940:1000,]) 
+ppc_stat_2d(data9$stops, z.mcmc9, stat = c("mean", "var"))
+```
+
+```{r bayesian-10}
+data10<-stop_clean[precinct.category==3 & crime==2,]
+nobs = nrow(data10)
+# Construct the regdata (containing X)
+simnegbindata10 = data10
+beta10 <- c(0.98258,0.93954,-0.09601,-0.60514 ) #M2[[10]]
+X10<-cbind(rep(1,length(data10$stops)),data10$dcjs,data10$hispanic,data10$white)
+simnegbindata10 = list(y=simnegbin(X10,beta10,alpha), X=X10, beta=beta10)
+Data10 = simnegbindata10
+Mcmc10 = list(R=R)
+out10 = rnegbinRw(Data=Data10, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out10$alphadraw, tvalues=alpha)
+summary(out10$betadraw, tvalues=beta10)
+
+betadraws10 <- out10$betadraw
+alphadraws10 <- out10$alphadraw
+z.mcmc10 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws10)){ 
+  z <- simnegbin(X10,betadraws10[i,],alphadraws10[i])
+  z.mcmc10 <- rbind(z.mcmc10, z)
+}
+ppc_dens_overlay(data10$stops, z.mcmc10[940:1000,]) 
+ppc_stat_2d(data10$stops, z.mcmc10, stat = c("mean", "var"))
+```
+
+```{r bayesian-11}
+data11<-stop_clean[precinct.category==3 & crime==3,]
+nobs = nrow(data11)
+# Construct the regdata (containing X)
+simnegbindata11 = data11
+beta11 <- c(0.2157,0.7845, 0.1470,0.3764) #M2[[11]]
+X11<-cbind(rep(1,length(data11$stops)),data11$dcjs,data11$hispanic,data11$white)
+simnegbindata11 = list(y=simnegbin(X11,beta11,alpha), X=X11, beta=beta11)
+Data11 = simnegbindata11
+Mcmc11 = list(R=R)
+out11 = rnegbinRw(Data=Data11, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out11$alphadraw, tvalues=alpha)
+summary(out11$betadraw, tvalues=beta11)
+
+betadraws11 <- out11$betadraw
+alphadraws11 <- out11$alphadraw
+z.mcmc11 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws11)){ 
+  z <- simnegbin(X11,betadraws11[i,],alphadraws11[i])
+  z.mcmc11 <- rbind(z.mcmc11, z)
+}
+ppc_dens_overlay(data11$stops, z.mcmc11[940:1000,]) 
+ppc_stat_2d(data11$stops, z.mcmc11, stat = c("mean", "var"))
+```
+
+```{r bayesian-12}
+data12<-stop_clean[precinct.category==3 & crime==4,]
+nobs = nrow(data12)
+# Construct the regdata (containing X)
+simnegbindata12 = data12
+beta12 <- c(-0.37151,0.74176,-0.09273,-0.59405) #M2[[12]]
+X12<-cbind(rep(1,length(data12$stops)),data12$dcjs,data12$hispanic,data12$white)
+simnegbindata12 = list(y=simnegbin(X12,beta12,alpha), X=X12, beta=beta12)
+Data12 = simnegbindata12
+Mcmc12 = list(R=R)
+out12 = rnegbinRw(Data=Data12, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out12$alphadraw, tvalues=alpha)
+summary(out12$betadraw, tvalues=beta12)
+
+betadraws12 <- out12$betadraw
+alphadraws12 <- out12$alphadraw
+z.mcmc12 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws12)){ 
+  z <- simnegbin(X12,betadraws12[i,],alphadraws12[i])
+  z.mcmc12 <- rbind(z.mcmc12, z)
+}
+ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,]) 
+ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
 ```
 
 ### References:
