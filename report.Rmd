@@ -11,19 +11,65 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### (i) Background Information
 
-Racial profiling in policing has always been a huge point of contention. It is defined as police practice that relies on certain racial characteristics they believe to be associated with crime. This issue is especially prominent in selective policing strategies such as "stop-and-frisk", i.e. deciding which pedestrains to search, question, or frisk, a program in New York City that has caused numerous civil rights controversies. Police have defended the strategy by claiming that, while stop-rates are higher for non-white citizens, it only reflects reasonable prior knowledge or experience such as historic crime rates by race, or that other counfounding factors such as variation between precincts (neighbourhoods) exists. 
+Racial profiling in policing has always been a huge point of contention. It is defined as police practice that relies on certain racial characteristics they believe to be associated with crime. This issue is especially prominent in selective policing strategies such as "stop-and-frisk", i.e. deciding which pedestrains to search, question, or frisk, a program in New York City that has caused numerous civil rights controversies. Police have defended the strategy by claiming that, while stop-rates are higher for non-white citizens, it only reflects reasonable prior knowledge or experience such as historic crime rates by race, or that other counfounding factors such as variation between precincts (neighbourhoods).
 
 ### (ii) Goals, relevant issues, and challenges 
 
-Our goal is to find out whether minorities (black and hispanic citizens) are disproportionately targeted even when taking into account to historic crime rates (approximated by arrest rates from the previous year) and variances in precinct as a random effect. To do this, we take the approach of model to predict the arrest 
+Our goal is to find out whether minorities (black and hispanic citizens) are disproportionately targeted even when taking into account to historic crime rates (approximated by arrest rates from the previous year) and variances in precinct as a random effect. To do this, we take the approach of modelling stop rates based on previous year's arrests, categorized by ethnicity and crime type, while making precinct a random effect in the sampling model. We then examine the coefficients of the posterior distribution to see whether past year's crimes would affect minority and white group stop rates in a similar way. 
+
+### (iii) Data source, cleaning, variables description, and limitations in the data 
+
+Our data source is the stop-and-frisk dataset compiled by Andrew Gelman and Jennifer Hill in his book, and can be found [at this site](http://www.stat.columbia.edu/~gelman/arm/examples/police/frisk_with_noise.dat). It contains the times pedestrains are stopped in each of hte 75 precincts in New York City in 2005. We benefitted from his work and hence no further cleaning is necessary.
+Every row is a precinct's number of stops for a specific ethnicity and crime type, i.e. one precinct's total number of stops are spread across several rows. The following variables are in the dataset:
+
+_Numerica variables:_
+stops: the number of stops for a specific ethnicity and crime type, specified by crime and eth variables in the same row 
+pop: population of a specific ethnicity in the precinct specified by the precinct variable in the same row 
+past.arrests: the number of arrests in the previous year for the ethnicity and crime type specified by crime and eth variables in the same row
+
+_Factor variables:_
+precinct: numbered from 1-75
+eth: 1=black, 2=hispanic, 3=white
+crime: 1=violent, 2=weapons, 3=property, 4=drug
+
+## Initial EDA and sampling model specification 
+
+Since our data is count data, it is reasonable to use either the Poisson or Negative Binomial distribution for the sampling model. We realized by running quick summary statistics on response variable stop rate that there is overdispersion, i.e. the variance of 47254 is far greater than the mean of 146. This gives us the idea that Negative Binomial distribution is more appropriate to account for overdispersion factors. We also do not have any zero values, so zero-inflated versions of Poisson or Negative Binomial are not applicable. We validated this by fitting a Poisson and Negative Binomial regression model with precinct as the random effect, and by comparing the AIC/BIC it shows that indeed the Negative Binomial is a much better model fit. 
+
+We also want to divide up the precincts by the portion of black population in it, as we want to account for previous police claims that relate to the demographics of a precinct. For example, police claim that they are more likely to stop black pedestrians in the case where the black pedestrian is in a predominantely white neighbourhood, and vice versa. Hence, by categorizing precincts based on the proportion of black population, we can use it to examine if disproportionate stopping of minorities still exists in predominantely white or black neighborhoods. Hence we created the variable `pblack` which categorizes precincts with <10%, 10-40%, or > 40% black population. 
+
+Next, we want to incorporate the hiearchial element into the model, as we have 3 different precinct categories (<10%, 10-40%, or > 40% black population) and 4 different crime types (violent, weapons, property, drug). Previous literature has suggested that police reports having different strategies for different precinct, for example being more aggressive towards stopping pedestrains in high crime precincts, or having higher stop rates because some crime types are easier to spot than others. Hence, it is not ideal to do regression without distinguishing effects of different precincts and crime types. This calls for a hiearchial Negative Binomial program as follows: 
+
+$\lambda$ = mean
+$\alpha$ = over-dispersion factor 
+
+\[
+\begin{eqnarray}
+Y|\lambda, \alpha & \sim & NB(\lambda, \alpha)\\ 
+\end{eqnarray}
+\\
+\lambda = Exp(x'\beta)
+\]
+
+## Methodology (prior, posterior)
+
+As we adopt hiearchical Negative Binomial distribution as our sampling model, there are 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution  
+\[
+\begin{eqnarray}
+\beta & \sim & \mathrm{N}(\overline{\beta}, A^{-1})\\
+\alpha & \sim & Gamma(a,b)\\
+\end{eqnarray}
+\]
 
 posterior sampling on regression parameters 
 after getting posterior sampler 
 --> predictive distribution, predict poission regression 
 
 
-### (iii) data sources, cleaning procedure, describe variables, limitations in the data? 
+## Posterior predictive and checks 
 
+
+## Interpretations and conclusions 
 
 ## Limitations
 
@@ -39,6 +85,19 @@ controlled for precinct to precinct variation and crime type, but not population
 
 From the plots below, other than median income, all of our numeric predictors appear reasonable with no extreme outliers that would necessitate transformation. There are a few observations with median income of around $90,000, which is a large jump from around $70,000 where the next highest observations are. We log-transform median income to correct for the variable’s skewed distribution.
 
+
+We analyze the rates at which New Yorkers of differ- ent ethnic groups were stopped by the police on the city streets, to assess the central claim that race-specific stop rates reflect nothing more than race-specific crime rates. 
+
+We address this question in several different ways using data on police stops and conclude that members of minority groups were stopped more often than whites, both in comparison to their overall population and to the estimated rates of crime that they have committed. 
+
+When compared in that way, the ratio of stops to DCJS arrests was 1.24 for whites, 1.54 for blacks, and 1.72 for Hispanics; based on this comparison, blacks are stopped 23% more often than whites and Hispanics are stopped 39% more often than whites. 
+
+But suppose that the police make more stops in high-crime areas but treat the different ethnic groups equally within any locality. Then the citywide ratios could show significant differences between ethnic groups even if stops were determined entirely by location rather than by ethnicity. 
+Because it is pos- sible that the patterns are systematically different in neigh- borhoods with different ethnic compositions, we divided the precincts into three categories in terms of their black popula- tion: precincts that were less than 10% black, 10–40% black, and more than 40% black. 
+
+We conducted separate comparisons for violent crimes, weapons offenses, property crimes, and drug crimes. For each, we modeled the number of stops yep by ethnic group e and precinct p for that crime type, using as a baseline the DCJS arrest count nep for that ethnic group, precinct, and crime type. 
+
+For each fit, we simulated three several independent Markov chains from different starting points, stopping when the simulations from each chain alone were as variable as those from all of the chains mixed together (Gelman(and Rubin 1992). We then gathered the last half of the simulated chains and used these to compute posterior estimates and(standard errors. For the analyses reported in this article, 10,000(iterations were always sufficient for mixing of the sequences.
 
 ```{r cars}
 summary(cars)
