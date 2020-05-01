@@ -29,18 +29,21 @@ Our data source is the stop-and-frisk dataset compiled by Andrew Gelman and Jenn
 Every row is a precinct's number of stops for a specific ethnicity and crime type, i.e. one precinct's total number of stops are spread across several rows. The following variables are in the dataset:
 
 _Numerica variables:_
-stops: the number of stops for a specific ethnicity and crime type, specified by crime and eth variables in the same row 
-pop: population of a specific ethnicity in the precinct specified by the precinct variable in the same row 
-past.arrests: the number of arrests in the previous year for the ethnicity and crime type specified by crime and eth variables in the same row
+* stops: the number of stops for a specific ethnicity and crime type, specified by crime and eth variables in the same row 
+* pop: population of a specific ethnicity in the precinct specified by the precinct variable in the same row 
+* past.arrests: the number of arrests in the previous year for the ethnicity and crime type specified by crime and eth variables in the same row
 
 _Factor variables:_
-precinct: numbered from 1-75
-eth: 1=black, 2=hispanic, 3=white
-crime: 1=violent, 2=weapons, 3=property, 4=drug
+* precinct: numbered from 1-75
+* eth: 1=black, 2=hispanic, 3=white
+* crime: 1=violent, 2=weapons, 3=property, 4=drug
 
 ## Initial EDA and sampling model specification 
 
 Since our data is count data, it is reasonable to use either the Poisson or Negative Binomial distribution for the sampling model. We realized by running quick summary statistics on response variable stop rate that there is overdispersion, i.e. the variance of 47254 is far greater than the mean of 146. This gives us the idea that Negative Binomial distribution is more appropriate to account for overdispersion factors. We also do not have any zero values, so zero-inflated versions of Poisson or Negative Binomial are not applicable. We validated this by fitting a Poisson and Negative Binomial regression model with precinct as the random effect, and by comparing the AIC/BIC it shows that indeed the Negative Binomial is a much better model fit. 
+
+![M1 and M2 are multi-level Poisson and Negative Binomial models respectively](images/poinb.png)
+![Negative binomial model is much better in non-hiearchical and slightly better than Poisson model when hiearchical](images/anova.png)
 
 We also want to divide up the precincts by the portion of black population in it, as we want to account for previous police claims that relate to the demographics of a precinct. For example, police claim that they are more likely to stop black pedestrians in the case where the black pedestrian is in a predominantely white neighbourhood, and vice versa. Hence, by categorizing precincts based on the proportion of black population, we can use it to examine if disproportionate stopping of minorities still exists in predominantely white or black neighborhoods. Hence we created the variable `pblack` which categorizes precincts with <10%, 10-40%, or > 40% black population. 
 
@@ -56,9 +59,11 @@ Y_{ep}|\lambda_p, \alpha_e & \sim & NB(\lambda_p \alpha_e)\\
 Pr(Y_{ep} = y_{ep}|\lambda_p,\alpha_e) = \frac{\Gamma(y_{ep} + \alpha_e^{-1})}{\Gamma(\alpha_e^{-1})\Gamma(y_{ep} + 1)}(\frac{1}{1+ \alpha_e\lambda_p})^{a^{-1}}(\frac{\alpha_e\lambda_p}{1+\alpha_e\lambda_p})^y_{ep}
 \]
 
+As for the variable past.arrest (last year's arrest rate), we scale by the factor of 15/12 to account for the fact that we have 15 months of stop data but only 12 months of arrest data. 
+
 ## Methodology for prior and posterior
 
-We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution on regression coefficient $\beta$ and over-dispersion factor $\alpha$ as follows: 
+We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. We assign Normal distribution distribution as the prior for regression coefficient $\beta$ as it is continuous and takes range from negative to positive infinity. We also assign Gamma distribution as the prior for over-dispersion factor $\alpha$ as it is continuous and positive.
 
 \[
 \begin{eqnarray} 
@@ -87,19 +92,15 @@ The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\
 
 Below are the posterior predictive checks for violent crimes in precincts with less than 10% African American population. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
 
-![](images/ppc1.png)
-![](images/ppc2.png)
+![](images/newppc1.png)
+![](images/newppc2.png)
 
 ## Interpretations and conclusions 
 
 ![Estimates for the ethnicity and precinct-by-ethnicity-level coefficients for ethnicity, broken down by crime type](images/coeff.png)
 
-<<<<<<< HEAD
 
 ![Estimated rates of different ethnicities for stopped for different categories of crime based on coefficients from hiearchical regression](images/interaction.png)
-=======
-![Estimated rates of different ethnicities for stopped for different categories of crime based on coefficients from hiearchical regression](images/interaction1.png)
->>>>>>> e8927052accd4726b3c1de7d262a2452ea080013
 
 1) Black people are stopped more frequently for all crime types except for property crimes across precincts with different proportion of black population, save for property crime and violent crime in majority non-black neighbourhoods. Notably, in precicnts with majority black population (40% and above), the coefficients for the effect of ethnicity on chance of being stopped for violent crimes are negative for hispanics and whites, but not for blacks; i.e. being black uniquely leads to a higher chance of being stopped for violent crimes in majority black neighborhoods. This is an interesting contrast to police statement that they are more likely to do "racial incongruity" stops. i.e. having high chances of minority stops in predominantely white precincts. 
 
@@ -112,6 +113,11 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 5) the coefficients of dcjs (the number of arrests last year) are consistent across different crime types and precinct categories, as the 95% credible interval of coefficient is roughly (0.5, 1) all around. i.e. for all races, previous year's arrest rate for their race makes it more likely for pedestrians of that race to be stopped.
 
 We analyze the stop rates at which New Yorkers of different ethinicy were stopped by the police on the city streets, to assess the central claim that race-specific stop rates reflect nothing more than race-specific crime rates. We aim to assess whether police have reasonable prior knowledge such as historic arrest rates by race to justify their action to stop black more frequently than non-black, or the trend to do "racial congruity stops" for different ethnicities without specifically discriminating against black. From our model, we conclude that historic arrest rates have no impact on stop rates of different racial groups across all crime types as it is approximately consistent. Moreover, whites are the least likely to be stopped for all crime types regardless of precinct balck population, except for property crime which we believe is less likely to be influenced by racial profiling. We conclude that members of minority groups, especially black were stopped more often than whites, both in comparison to their overall population and to the estimated rates of crime that they have committed. 
+## MCMC convergence and mixing diagnostics 
+
+We conducted convergence check for our posterior samples of the coefficients, and it appears that convergence occured at about 100-200 iterations. Hence, we threw out the first 100 draws that are burn-ins and retained 900 valid draws for each of our 12 models. The right panel shows our attempt at thinning the samples because they are not indpendent and identically distributed. However, given we started out with high variance and overdispersion, and we do not really have storage concerns, so we decided against thinning.
+
+![Convergence check and thinning](images/p1c1.png)
 
 ## Limitations
 
