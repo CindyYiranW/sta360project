@@ -50,11 +50,11 @@ Next, we want to incorporate the hiearchial element into the model, as we have 3
 $\lambda$ = mean, $\alpha$ = over-dispersion factor 
 
 \[
-\lambda_i = exp(\vec{x^T\beta})\\
+\lambda_p= exp(\vec{x^T\beta_p})\\
 \begin{eqnarray}
-Y|\lambda, \alpha & \sim & NB(\lambda, \alpha)\\ 
+Y_{ep}|\lambda_p, \alpha_e & \sim & NB(\lambda_p \alpha_e)\\ 
 \end{eqnarray} \\
-Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 1)}(\frac{1}{1+ \alpha\lambda_i})^{a^{-1}}(\frac{\alpha\lambda_i}{1+\alpha\lambda_i})^y_i
+Pr(Y_{ep} = y_{ep}|\lambda_p,\alpha_e) = \frac{\Gamma(y_{ep} + \alpha_e^{-1})}{\Gamma(\alpha_e^{-1})\Gamma(y_{ep} + 1)}(\frac{1}{1+ \alpha_e\lambda_p})^{a^{-1}}(\frac{\alpha_e\lambda_p}{1+\alpha_e\lambda_p})^y_{ep}
 \]
 
 ## Methodology for prior and posterior
@@ -63,12 +63,12 @@ We have 12 sampling models defined by different combinations of 3 precinct categ
 
 \[
 \begin{eqnarray} 
-\beta & \sim & \mathrm{N}(\overline{\beta}, A^{-1})\\
-\alpha & \sim & Gamma(a,b)\\
+\beta_p & \sim & \mathrm{N}(\overline{\beta}, A^{-1})\\
+\alpha_e & \sim & Gamma(a,b)\\
 \end{eqnarray}
 \]
 
-We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$. 
+We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$. We conduct separate comparisons for violent crimes, weapons offenses, property crimes, and drug crimes. For each, we model the number of stops by ethnic group "e" and precinct "p" for that crime type, using as a baseline the DCJS arrest count nep for that ethnic group, precinct, and crime type. 
 
 ## Posterior predictive checks
 
@@ -86,8 +86,6 @@ Generate chain of MCMC samples of parameters $\beta$ and $\alpha$ from 12 poster
  
 The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predive samples of $Z$. By comparing simulated samples with real data, we realize the posterior distribution tends to shrink towards 0 from positive side, with longer but thinner tails than the real distribution of data. It implies our posterior model is likely to predict more precincts with extreme stop rate, while failing to capture the trend of precincts with moderate stop rate. For most of the time, our model learns the variability of tails sufficiently. It captures the average stop rate for different precinct categories and crime types pretty well, although with comparatively large variance. 
 
-
-
 The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predictive samples of $Z$.
 
 Below are the posterior predictive checks for violent crimes in precincts with less than 10% African American population. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
@@ -98,7 +96,6 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 ## Interpretations and conclusions 
 
 ![Estimates for the ethnicity and precinct-by-ethnicity-level coefficients for ethnicity, broken down by crime type](images/coeff.png)
-
 
 ![Estimated rates of different ethnicities for stopped for different categories of crime based on coefficients from hiearchical regression](images/interaction1.png)
 
@@ -112,6 +109,7 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 
 5) the coefficients of dcjs (the number of arrests last year) are consistent across different crime types and precinct categories, as the 95% credible interval of coefficient is roughly (0.5, 1) all around. i.e. for all races, previous year's arrest rate for their race makes it more likely for pedestrians of that race to be stopped.
 
+We analyze the stop rates at which New Yorkers of different ethinicy were stopped by the police on the city streets, to assess the central claim that race-specific stop rates reflect nothing more than race-specific crime rates. We aim to assess whether police have reasonable prior knowledge such as historic arrest rates by race to justify their action to stop black more frequently than non-black, or the trend to do "racial congruity stops" for different ethnicities without specifically discriminating against black. From our model, we conclude that historic arrest rates have no impact on stop rates of different racial groups across all crime types as it is approximately consistent. Moreover, whites are the least likely to be stopped for all crime types regardless of precinct balck population, except for property crime which we believe is less likely to be influenced by racial profiling. We conclude that members of minority groups, especially black were stopped more often than whites, both in comparison to their overall population and to the estimated rates of crime that they have committed. 
 
 ## Limitations
 
@@ -124,7 +122,6 @@ missing predictors, overdispersion, impossible to have every single predictor (i
 controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
 
 ### Appendix: 
-
 
 ![Confidence intervals and quantiles for all coefficients, grouped by crime type and precinct black population percentage ](images/quantile.png)
 
@@ -147,18 +144,3 @@ controlled for precinct to precinct variation and crime type, but not population
 16. Bolker, Ben. GLMM FAQ, January 9, 2020. https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion.
 17. Burke. N.(2018), "Metropolis, Metropolis-Hastings and Gibbs Sampling Algorithms", Lakehead University Press
 18. Gelman, Andrew, Fagan, Jefferey, Alex, Kiss, "An Analysis of the New York City Police Department's 'Stop-and-Frisk' Policy in the Context of Claims of Racial Bias." Journal of the American Statistical Association, September 2007, Vol 102, No. 479, Applications and Case Studies, DOI 10.1198/016214506000001040
-
-We analyze the rates at which New Yorkers of differ- ent ethnic groups were stopped by the police on the city streets, to assess the central claim that race-specific stop rates reflect nothing more than race-specific crime rates. 
-
-We address this question in several different ways using data on police stops and conclude that members of minority groups were stopped more often than whites, both in comparison to their overall population and to the estimated rates of crime that they have committed. 
-
-When compared in that way, the ratio of stops to DCJS arrests was 1.24 for whites, 1.54 for blacks, and 1.72 for Hispanics; based on this comparison, blacks are stopped 23% more often than whites and Hispanics are stopped 39% more often than whites. 
-
-But suppose that the police make more stops in high-crime areas but treat the different ethnic groups equally within any locality. Then the citywide ratios could show significant differences between ethnic groups even if stops were determined entirely by location rather than by ethnicity. 
-Because it is pos- sible that the patterns are systematically different in neigh- borhoods with different ethnic compositions, we divided the precincts into three categories in terms of their black popula- tion: precincts that were less than 10% black, 10–40% black, and more than 40% black. 
-
-We conducted separate comparisons for violent crimes, weapons offenses, property crimes, and drug crimes. For each, we modeled the number of stops yep by ethnic group e and precinct p for that crime type, using as a baseline the DCJS arrest count nep for that ethnic group, precinct, and crime type. 
-
-For each fit, we simulated three several independent Markov chains from different starting points, stopping when the simulations from each chain alone were as variable as those from all of the chains mixed together (Gelman and Rubin 1992). We then gathered the last half of the simulated chains and used these to compute posterior estimates and(standard errors. For the analyses reported in this article, 10,000(iterations were always sufficient for mixing of the sequences.
-
-
