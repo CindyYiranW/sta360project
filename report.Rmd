@@ -1,8 +1,9 @@
 ---
 title: "STA360 Final Project Report"
 output:
-  rmarkdown::html_document:
-    theme: lumen
+  word_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -74,8 +75,10 @@ We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$.
 Generate chain of MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year's arrest rate, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
 
 \[
+\begin{eqnarray}
 [Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
 =[Z|\beta, \alpha][\beta|data]
+\end{eqnarray}
 \]
 
  1. Draw S samples $\beta_1$, ..., $\beta_S$ from the posterior distribution $[\beta|data]$.
@@ -110,7 +113,6 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 5) the coefficients of dcjs (the number of arrests last year) are consistent across different crime types and precinct categories, as the 95% credible interval of coefficient is roughly (0.5, 1) all around. i.e. for all races, previous year's arrest rate for their race makes it more likely for pedestrians of that race to be stopped.
 
 
-
 ## Limitations
 
 ### (i) Limitations of the data 
@@ -121,9 +123,10 @@ missing predictors, overdispersion, impossible to have every single predictor (i
 
 controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
 
-### (iii) Exploratory Data Analysis
+### Appendix: 
 
-From the plots below, other than median income, all of our numeric predictors appear reasonable with no extreme outliers that would necessitate transformation. There are a few observations with median income of around $90,000, which is a large jump from around $70,000 where the next highest observations are. We log-transform median income to correct for the variable’s skewed distribution.
+
+![Confidence intervals and quantiles for all coefficients, grouped by crime type and precinct black population percentage ](images/quantile.png)
 
 ### References:
 1. Index of /~gelman/arm/examples/police. Accessed April 20, 2020. http://www.stat.columbia.edu/~gelman/arm/examples/police/.
