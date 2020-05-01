@@ -49,11 +49,13 @@ c(mean=r[1], var=r[2], ratio=r[2]/r[1])
 Overdispersed, so we should do Negative Binomial instead of Poisson.
 
 ```{r raneffect}
+png('ran_effect.png')
 data %>% 
   group_by(precinct) %>%
   ggplot(., mapping = aes(x = as.factor(precinct), y = stops)) +
     geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust=1)) +
   labs(title="number of stops by precincts", x="precincts")
+dev.off()
 ```
 
 ```{r regression}

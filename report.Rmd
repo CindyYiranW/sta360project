@@ -19,6 +19,8 @@ Racial profiling in policing has always been a huge point of contention. It is d
 
 Our goal is to find out whether minorities (black and hispanic citizens) are disproportionately targeted even when taking into account to historic crime rates (approximated by arrest rates from the previous year) and variances in precinct as a random effect. To do this, we take the approach of modelling stop rates based on previous year's arrests, categorized by ethnicity and crime type, while making precinct a random effect in the sampling model. We then examine the coefficients of the posterior distribution to see whether past year's crimes would affect minority and white group stop rates in a similar way. 
 
+![A box plot of all 75 precincts showing the variation in stops](images/ran_effect.png)
+
 ### (iii) Data source, cleaning, variables description, and limitations in the data 
 
 Our data source is the stop-and-frisk dataset compiled by Andrew Gelman and Jennifer Hill in his book, and can be found [at this site](http://www.stat.columbia.edu/~gelman/arm/examples/police/frisk_with_noise.dat). It contains the times pedestrains are stopped in each of hte 75 precincts in New York City in 2005. We benefitted from his work and hence no further cleaning is necessary.
@@ -89,6 +91,16 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 ![](images/ppc2.png)
 
 ## Interpretations and conclusions 
+
+![Estimates for the ethnicity and precinct-by-ethnicity-level coefficients for ethnicity, broken down by crime type](images/coeff.png)
+
+1) regardless of precinct black population percentage, black people are more often stopped for all crime types except for property crimes
+
+2) for precincts with 10-40% black population, whites are 3x less likely stopped for violent crimes 
+
+3) for property crime in a precinct with more than 40% black population, whites are always more likely to be targeted than other races within a 95% credible interval 
+
+4) for precincts with over 40% black population, black people are 1.4-1.5x more suspectible from stopping from drug crimes than hispanics and whites. 
 
 ## Limitations
 
