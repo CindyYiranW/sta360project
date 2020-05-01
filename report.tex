@@ -62,10 +62,38 @@
 \def\fps@figure{htbp}
 \makeatother
 
+<<<<<<< HEAD
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+% https://github.com/rstudio/rmarkdown/issues/337
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+% https://github.com/rstudio/rmarkdown/pull/252
+\usepackage{titling}
+\setlength{\droptitle}{-2em}
+
+\pretitle{\vspace{\droptitle}\centering\huge}
+\posttitle{\par}
+
+\preauthor{\centering\large\emph}
+\postauthor{\par}
+
+\predate{\centering\large\emph}
+\postdate{\par}
+
+\title{Report}
+\date{}
+=======
 
 \title{Report}
 \author{}
 \date{\vspace{-2.5em}}
+>>>>>>> 36e7dde30afe1aa986a93f3af8fbdac1445e2e13
 
 \begin{document}
 \maketitle
@@ -235,6 +263,12 @@ sufficiently. It captures the average stop rate for different precinct
 categories and crime types pretty well, although with comparatively
 large variance.
 
+<<<<<<< HEAD
+The resulting samples will be \((Z_1, \beta_1), ..., (Z_S, \beta_S)\).
+Ignoring \(\beta\), we generate posterior predive samples of \(Z\).
+
+=======
+>>>>>>> 36e7dde30afe1aa986a93f3af8fbdac1445e2e13
 \hypertarget{interpretations-and-conclusions}{%
 \subsection{Interpretations and
 conclusions}\label{interpretations-and-conclusions}}
