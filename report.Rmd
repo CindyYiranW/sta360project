@@ -21,7 +21,7 @@ Racial profiling in policing has always been a huge point of contention. It is d
 
 Our goal is to find out whether minorities (black and hispanic citizens) are disproportionately targeted even when taking into account to historic crime rates (approximated by arrest rates from the previous year) and variances in precinct as a random effect. To do this, we take the approach of modelling stop rates based on previous year's arrests, categorized by ethnicity and crime type, while making precinct a random effect in the sampling model. We then examine the coefficients of the posterior distribution to see whether past year's crimes would affect minority and white group stop rates in a similar way. 
 
-![A box plot of all 75 precincts showing the variation in stops](images/ran_effect.png)
+![A box plot of all 75 precincts showing the variation in stops](images/ran_eff.png)
 
 ### (iii) Data source, cleaning, variables description, and limitations in the data 
 
@@ -97,7 +97,7 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 ![Estimates for the ethnicity and precinct-by-ethnicity-level coefficients for ethnicity, broken down by crime type](images/coeff.png)
 
 
-![Estimated rates of different ethnicities for stopped for different categories of crime based on coefficients from hiearchical regression](images/interaction1.png)
+![Estimated rates of different ethnicities for stopped for different categories of crime based on coefficients from hiearchical regression](images/interaction.png)
 
 1) Black people are stopped more frequently for all crime types except for property crimes across precincts with different proportion of black population, save for property crime and violent crime in majority non-black neighbourhoods. Notably, in precicnts with majority black population (40% and above), the coefficients for the effect of ethnicity on chance of being stopped for violent crimes are negative for hispanics and whites, but not for blacks; i.e. being black uniquely leads to a higher chance of being stopped for violent crimes in majority black neighborhoods. This is an interesting contrast to police statement that they are more likely to do "racial incongruity" stops. i.e. having high chances of minority stops in predominantely white precincts. 
 
