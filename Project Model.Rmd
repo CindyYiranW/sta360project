@@ -48,6 +48,16 @@ c(mean=r[1], var=r[2], ratio=r[2]/r[1])
 ```
 Overdispersed, so we should do Negative Binomial instead of Poisson.
 
+```{r raneffect}
+png('ran_effect.png')
+data %>% 
+  group_by(precinct) %>%
+  ggplot(., mapping = aes(x = as.factor(precinct), y = stops)) +
+    geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust=1)) +
+  labs(title="number of stops by precincts", x="precincts")
+dev.off()
+```
+
 ```{r regression}
 stops<-data$stops ; ethi<-as.factor(data$eth) ; precinct<-as.factor(data$precinct);arrest=data$past.arrests
 overdisp_fun <- function(model) {
@@ -467,6 +477,64 @@ for(i in 1:nrow(betadraws12)){
 }
 ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,]) 
 ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
+```
+
+```{r}
+library(cowplot)
+library(readxl)
+violent <- read_excel("coeff_tbl.xlsx", sheet = "violent")
+p1 <- violent %>%
+  pivot_wider(names_from = Parameter, values_from = coeff) %>%
+ggplot(., aes(x=Prop_black, group = 1)) + 
+  geom_line(aes(y = Blacks, color = "Blacks")) + 
+  geom_line(aes(y = Hispanics, color="Hispanics")) +
+  geom_line(aes(y = Whites, color="Whites")) + 
+  labs(title = "Violent crimes", y = "posterior coefficient of ethnicity", color = "Legend") + theme(legend.justification=c(1,0), legend.position=c(1,0))
+
+
+#weapon
+weapon <- read_excel("coeff_tbl.xlsx", sheet = "weapon")
+p2 <- weapon %>%
+  pivot_wider(names_from = Parameter, values_from = coeff) %>%
+ggplot(., aes(x=Prop_black, group = 1)) + 
+  geom_line(aes(y = Blacks, color = "Blacks")) + 
+  geom_line(aes(y = Hispanics, color="Hispanics")) +
+  geom_line(aes(y = Whites, color="Whites")) + 
+  labs(title = "Weapon crimes", y = "posterior coefficient of ethnicity", color = "Legend") + 
+  theme(legend.position = "none")
+
+#property
+property <- read_excel("coeff_tbl.xlsx", sheet = "property")
+p3 <- property %>%
+  pivot_wider(names_from = Parameter, values_from = coeff) %>%
+ggplot(., aes(x=Prop_black, group = 1))  + 
+  geom_line(aes(y = Blacks, color = "Blacks")) + 
+  geom_line(aes(y = Hispanics, color="Hispanics")) +
+  geom_line(aes(y = Whites, color="Whites")) + 
+  labs(title = "Property crimes", y = "posterior coefficient of ethnicity", color = "Legend") + 
+  theme(legend.position = "none")
+
+#drug
+drug <- read_excel("coeff_tbl.xlsx", sheet = "drug")
+p4 <- drug %>%
+  pivot_wider(names_from = Parameter, values_from = coeff) %>%
+ggplot(., aes(x=Prop_black, group = 1))  + 
+  geom_line(aes(y = Blacks, color = "Blacks")) + 
+  geom_line(aes(y = Hispanics, color="Hispanics")) +
+  geom_line(aes(y = Whites, color="Whites")) + 
+  labs(title = "Drug crimes", y = "posterior coefficient of ethnicity", color = "Legend") + 
+  theme(legend.position = "none")
+
+
+# extract the legend from one of the plots
+# (clearly the whole thing only makes sense if all plots
+# have the same legend, so we can arbitrarily pick one.)
+legend_b <- get_legend(p1 + theme(legend.position="right"))
+
+
+# add the legend to the row we made earlier. Give it one-third of 
+# the width of one plot (via rel_widths).
+plot_grid(p1, p2, p3, p4, ncol = 2)
 ```
 
 
