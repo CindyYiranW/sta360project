@@ -3,6 +3,8 @@ title: "STA360 Final Project Report"
 output:
   word_document: default
   pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -45,7 +47,7 @@ Since our data is count data, it is reasonable to use either the Poisson or Nega
 ![M1 and M2 are multi-level Poisson and Negative Binomial models respectively](images/poinb.png)
 ![Negative binomial model is much better in non-hiearchical and slightly better than Poisson model when hiearchical](images/anova.png)
 
-We also want to divide up the precincts by the portion of black population in it, as we want to account for previous police claims that relate to the demographics of a precinct. For example, police claim that they are more likely to stop black pedestrians in the case where the black pedestrian is in a predominantely white neighbourhood, and vice versa. Hence, by categorizing precincts based on the proportion of black population, we can use it to examine if disproportionate stopping of minorities still exists in predominantely white or black neighborhoods. Hence we created the variable `pblack` which categorizes precincts with <10%, 10-40%, or > 40% black population. 
+We also want to divide up the precincts by the portion of black population in it, as we want to account for previous police claims that relate to the demographics of a precinct. For example, police claim that they are more likely to stop black pedestrians in the case where the black pedestrian is in a predominantely white neighbourhood, and vice versa, which previous literature has termed "racial incongruity". Hence, by categorizing precincts based on the proportion of black population, we can use it to examine if disproportionate stopping of minorities still exists in predominantely white or black neighborhoods. Hence we created the variable `pblack` which categorizes precincts with <10%, 10-40%, or > 40% black population. 
 
 Next, we want to incorporate the hiearchial element into the model, as we have 3 different precinct categories (<10%, 10-40%, or > 40% black population) and 4 different crime types (violent, weapons, property, drug). Previous literature has suggested that police reports having different strategies for different precinct, for example being more aggressive towards stopping pedestrains in high crime precincts, or having higher stop rates because some crime types are easier to spot than others. Hence, it is not ideal to do regression without distinguishing effects of different precincts and crime types. This calls for a hiearchial Negative Binomial program as follows: 
 
@@ -79,8 +81,10 @@ We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$. W
 Generate chain of MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year's arrest rate, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
 
 \[
+\begin{eqnarray}
 [Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
 =[Z|\beta, \alpha][\beta|data]
+\end{eqnarray}
 \]
 
  1. Draw S samples $\beta_1$, ..., $\beta_S$ from the posterior distribution $[\beta|data]$.
@@ -90,10 +94,10 @@ The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\
 
 The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predictive samples of $Z$.
 
-Below are the posterior predictive checks for violent crimes in precincts with less than 10% African American population as an example, while the remaining 11 checks are put in the appendix. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
+Below are the posterior predictive checks for property crimes in precincts with less than 10% African American population as an example, while the remaining 11 checks are put in the appendix. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
 
-![Posterior predictive checks for violent crimes in precincts with less than 10% African American population](images/newppc1.png)
-![](images/newppc2.png)
+![Posterior predictive checks for property crimes in precincts with less than 10% African American population](images/m5.2.png)
+![](images/m5.1.png)
 
 ## Interpretations and conclusions 
 
@@ -112,7 +116,12 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 
 5) the coefficients of dcjs (the number of arrests last year) are consistent across different crime types and precinct categories, as the 95% credible interval of coefficient is roughly (0.5, 1) all around. i.e. for all races, previous year's arrest rate for their race makes it more likely for pedestrians of that race to be stopped.
 
-We analyze the stop rates at which New Yorkers of different ethinicy were stopped by the police on the city streets, to assess the central claim that race-specific stop rates reflect nothing more than race-specific crime rates. We aim to assess whether police have reasonable prior knowledge such as historic arrest rates by race to justify their action to stop black more frequently than non-black, or the trend to do "racial congruity stops" for different ethnicities without specifically discriminating against black. From our model, we conclude that historic arrest rates have no impact on stop rates of different racial groups across all crime types as it is approximately consistent. Moreover, whites are the least likely to be stopped for all crime types regardless of precinct balck population, except for property crime which we believe is less likely to be influenced by racial profiling. We conclude that members of minority groups, especially black were stopped more often than whites, both in comparison to their overall population and to the estimated rates of crime that they have committed. 
+Our project goal was to analyze the stop rates at which New Yorkers of different ethinicy were stopped by the police on the city streets to assess the central claim on whether race-specific stop rates could support the claim of potential racial bias, or that it only reflects reasonable race-differentiation such as race-specific crime rates or neighbourhood differentiation. 
+
+In order to isolate differences so that it relates to race as much as possible, we took into account the fact that police may have reasonable prior knowledge such as historic arrest rates by race to justify their action to stop black more frequently than non-black, or the trend to do "racial congruity stops" by disaggregating data across neighborhoods.
+
+From our model, we conclude that historic arrest rates have no impact on stop rates of different racial groups across all crime types as it is approximately consistent. But even after accounting for historic crime rates, whites are still the least likely to be stopped for all crime types regardless of precinct balck population, except for property crime. This may suggest that property crime depends less on racial profiling. We conclude that members of minority groups, especially black were stopped more often than whites even after comparing to precinct to precinct variations and to the race-specific past year crimes of their race. 
+
 ## MCMC convergence and mixing diagnostics 
 
 We conducted convergence check for our posterior samples of the coefficients, and it appears that convergence occured at about 100-200 iterations. Hence, we threw out the first 100 draws that are burn-ins and retained 900 valid draws for each of our 12 models. The right panel shows our attempt at thinning the samples because they are not indpendent and identically distributed. However, given we started out with high variance and overdispersion, and we do not really have storage concerns, so we decided against thinning.
@@ -123,11 +132,11 @@ We conducted convergence check for our posterior samples of the coefficients, an
 
 ### (i) Limitations of the data 
 
-missing predictors, overdispersion, impossible to have every single predictor (i.e. every single factor the police considers when making a stop), that would include factors like age and gender of the pedestrain as well as many circumstantial cues. 
+There are missing predictors and possible confounding variables that could impact on stop rate, since it's impossible to account for every single factor the police considers when making a stop, such as age and gender of the pedestreain and many circumstantial cues. There is also a significant overdispersion in our data, which we contolled to certain extent with hierarchical Negative Binomial sampling model. 
 
 ### (ii) Limitation of the analysis 
 
-controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
+Our model controlled for variation on precinct-to-precinct stop rate and crime type, but not on population and demographics. However, there is already a plenty of literature demonstratng that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day-and-night population changes to account for commerical and business activity by Andrew Gelman. We are also limited by the fact that we don't have more prior information about the rate of stop and coefficients, so our prior is not extremely informative besides restricting the appropriate domain.
 
 ### Appendix: 
 
