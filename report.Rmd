@@ -1,8 +1,8 @@
 ---
 title: "Report"
 output:
-  html_document: default
-  pdf_document: default
+  rmarkdown::html_document:
+    theme: lumen
 ---
 
 ```{r setup, include=FALSE}
@@ -52,7 +52,7 @@ Y|\lambda, \alpha & \sim & NB(\lambda, \alpha)\\
 Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 1)}(\frac{1}{1+ \alpha\lambda_i})^{a^{-1}}(\frac{\alpha\lambda_i}{1+\alpha\lambda_i})^y_i
 \]
 
-## Methodology (prior, posterior)
+## Methodology for prior and posterior
 
 We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution on regression coefficient $\beta$ and over-dispersion factor $\alpha$ as follows: 
 
@@ -65,7 +65,7 @@ We have 12 sampling models defined by different combinations of 3 precinct categ
 
 We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$. 
 
-## Posterior predictive and checks
+## Posterior predictive checks
 
 Generate chain of MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year's arrest rate, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
 
@@ -79,7 +79,14 @@ Generate chain of MCMC samples of parameters $\beta$ and $\alpha$ from 12 poster
  
 The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predive samples of $Z$. By comparing simulated samples with real data, we realize the posterior distribution tends to shrink towards 0 from positive side, with longer but thinner tails than the real distribution of data. It implies our posterior model is likely to predict more precincts with extreme stop rate, while failing to capture the trend of precincts with moderate stop rate. For most of the time, our model learns the variability of tails sufficiently. It captures the average stop rate for different precinct categories and crime types pretty well, although with comparatively large variance. 
 
-The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predive samples of $Z$.
+
+
+The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predictive samples of $Z$.
+
+Below are the posterior predictive checks for violent crimes in precincts with less than 10% African American population. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
+
+![](images/ppc1.png)
+![](images/ppc2.png)
 
 ## Interpretations and conclusions 
 
@@ -97,6 +104,27 @@ controlled for precinct to precinct variation and crime type, but not population
 
 From the plots below, other than median income, all of our numeric predictors appear reasonable with no extreme outliers that would necessitate transformation. There are a few observations with median income of around $90,000, which is a large jump from around $70,000 where the next highest observations are. We log-transform median income to correct for the variable’s skewed distribution.
 
+### References:
+1. Index of /~gelman/arm/examples/police. Accessed April 20, 2020. http://www.stat.columbia.edu/~gelman/arm/examples/police/.
+2. “Bayesplot: Plotting for Bayesian Models - Bayesplot-Package.” - bayesplot-package • bayesplot. Accessed April 25, 2020. http://mc-stan.org/bayesplot/reference/bayesplot-package.html.
+3. Mehrad Mahmoudian [aut, cre]. “To.dummy: Convert Categorical Vector into Dummy Binary Dataframe in Varhandle: Functions for Robust Variable Handling.” to.dummy: Convert categorical vector into dummy binary dataframe in varhandle: Functions for Robust Variable Handling, February 21, 2020.
+4. Burke. N.(2018), "Metropolis, Metropolis-Hastings and Gibbs Sampling Algorithms", Lakehead University Press
+5. Chivers. C.(2012), "General Markov Chain Monte Carlo for Bayesian Inference using adaptive Metropolis-Hastings sampling"
+6. Rossi, Peter. “RnegbinRw: MCMC Algorithm for Negative Binomial Regression in Bayesm: Bayesian Inference for Marketing/Micro-Econometrics.” rnegbinRw: MCMC Algorithm for Negative Binomial Regression in bayesm: Bayesian Inference for Marketing/Micro-Econometrics, October 30, 2019. 
+7. “R Code 8 / Metropolis Hastings Steps.” R Code 8 / Metropolis Hastings Steps | Jeff Rouder. Accessed April 25, 2020. http://pcl.missouri.edu/jeff/node/322.
+8. Liang. J. (2010), "Hastings-within-Gibbs Algorithm: Introduction and Application on Hierarchical Model", UNIVERSITY OF TEXAS AT SAN ANTONIO Press
+9. 262588213843476. “R Code to Run an **MCMC** Chain Using a **Metropolis-Hastings** Algorithm with a Gaussian Proposal Distribution. Although There Are Hundreds of These in Various Packages, None That I Could Find Returned the Likelihood Values along with the Samples from the Posterior Distribution. However, If You Have These Likelihood Values, It's Very Easy to Calculate an Estimate of the **Marginal Likelihood** and the **Deviance Information Criterion**.” Gist. Accessed May 25, 2020. https://gist.github.com/gaberoo/4619102.
+10. user321627user321627 1, and Xi'anXi'an 70k88 gold badges118118 silver badges471471 bronze badges. “What Is a Hierarchical Model That Can Estimated via the Metropolis-Hastings Algorithm but Not the Gibbs Sampler?” Cross Validated, November 1, 1966. https://stats.stackexchange.com/questions/261552/what-is-a-hierarchical-model-that-can-estimated-via-the-metropolis-hastings-algo.
+11. StevenVDLStevenVDL 1122 bronze badges. “MCMC Metropolis-Hastings Sampler - Estimation of Multiple Parameters.” Cross Validated, February 1, 1969. https://stats.stackexchange.com/questions/411321/mcmc-metropolis-hastings-sampler-estimation-of-multiple-parameters.
+12. Rosenthal. J, Roberts. G. (2008), "Examples of Adaptive MCMC"
+13. “Tutorial - Bayesian Negative Binomial Regression from Scratch in Python.” Tutorial - Bayesian negative binomial regression from scratch in python | Kieran R Campbell - blog. Accessed April 25, 2020. https://kieranrcampbell.github.io/blog/2015/03/31/tutorial-bayesian-nb-regression.html.
+14. Curran, James M. “BivnormMH: Metropolis Hastings Sampling from a Bivariate Normal... in Bolstad2: Bolstad Functions.” bivnormMH: Metropolis Hastings sampling from a Bivariate Normal... in Bolstad2: Bolstad functions, May 2, 2019. https://rdrr.io/cran/Bolstad2/man/bivnormMH.html.
+15. “SamplerCompare Source: R/Metropolis.R.” SamplerCompare source: R/metropolis.R. Accessed April 25, 2020. https://rdrr.io/cran/SamplerCompare/src/R/metropolis.R.
+16. R: Metropolis Algorithm. Accessed April 20, 2020. http://www.stat.umn.edu/geyer/8701/package/mcmc.Rcheck/mcmc/html/metropolis.html.
+16. Neel. “R Code for Multivariate Random-Walk Metropolis Sampling.” One Life, June 24, 2017. https://blog.abhranil.net/2014/02/08/r-code-for-multivariate-random-walk-metropolis-hastings-sampling/.
+17. “Stop-and-Frisk in New York City.” Wikipedia. Wikimedia Foundation, April 12, 2020. https://en.wikipedia.org/wiki/Stop-and-frisk_in_New_York_City.
+18. KgeorKgeor 1, and Xi'anXi'an 70k88 gold badges118118 silver badges471471 bronze badges. “Metropolis-Hastings in a Bayesian Hierarchical Model.” Cross Validated, May 1, 1968.https://stats.stackexchange.com/questions/361501/metropolis-hastings-in-a-bayesian-hierarchical-model.
+19. Bolker, Ben. GLMM FAQ, January 9, 2020. https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion.
 
 We analyze the rates at which New Yorkers of differ- ent ethnic groups were stopped by the police on the city streets, to assess the central claim that race-specific stop rates reflect nothing more than race-specific crime rates. 
 
@@ -110,4 +138,35 @@ Because it is pos- sible that the patterns are systematically different in neigh
 We conducted separate comparisons for violent crimes, weapons offenses, property crimes, and drug crimes. For each, we modeled the number of stops yep by ethnic group e and precinct p for that crime type, using as a baseline the DCJS arrest count nep for that ethnic group, precinct, and crime type. 
 
 For each fit, we simulated three several independent Markov chains from different starting points, stopping when the simulations from each chain alone were as variable as those from all of the chains mixed together (Gelman and Rubin 1992). We then gathered the last half of the simulated chains and used these to compute posterior estimates and(standard errors. For the analyses reported in this article, 10,000(iterations were always sufficient for mixing of the sequences.
+
+
+### References:
+
+http://www.stat.columbia.edu/~gelman/arm/examples/police/
+http://mc-stan.org/bayesplot/reference/bayesplot-package.html
+https://rdrr.io/cran/varhandle/man/to.dummy.html
+https://www.lakeheadu.ca/sites/default/files/uploads/77/Burke.pdf
+https://cran.r-project.org/web/packages/MHadaptive/MHadaptive.pdf
+https://rdrr.io/cran/bayesm/man/rnegbinRw.html
+http://pcl.missouri.edu/jeff/node/322
+http://georglsm.r-forge.r-project.org/site-projects/pdf/Hastings_within_Gibbs.pdf
+https://gist.github.com/gaberoo/4619102
+https://stats.stackexchange.com/questions/261552/what-is-a-hierarchical-model-that-can-estimated-via-the-metropolis-hastings-algo
+https://stats.stackexchange.com/questions/411321/mcmc-metropolis-hastings-sampler-estimation-of-multiple-parameters
+http://probability.ca/jeff/ftpdir/adaptex.pdf
+https://kieranrcampbell.github.io/blog/2015/03/31/tutorial-bayesian-nb-regression.html
+https://rdrr.io/cran/Bolstad2/man/bivnormMH.html
+https://rdrr.io/cran/SamplerCompare/src/R/metropolis.R
+http://www.stat.umn.edu/geyer/8701/package/mcmc.Rcheck/mcmc/html/metropolis.html
+https://arxiv.org/pdf/1308.0657.pdf
+https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Labs/Lab06/lab09.html#multiclass-logistic-regression
+https://blog.abhranil.net/2014/02/08/r-code-for-multivariate-random-walk-metropolis-hastings-sampling/
+https://en.wikipedia.org/wiki/Stop-and-frisk_in_New_York_City
+https://stats.stackexchange.com/questions/361501/metropolis-hastings-in-a-bayesian-hierarchical-model
+https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#fitting-models-with-overdispersion
+https://sakai.duke.edu/access/content/group/cd23a148-0b53-4d1c-9d1e-c66c74e59129/Lectures/songbird.R
+http://probability.ca/jeff/ftpdir/adaptex.pdf
+http://www2.geog.ucl.ac.uk/~mdisney/teaching/GEOGG121/sivia_skilling/mterop_hastings.pdf
+https://prettydoc.statr.me/
+
 

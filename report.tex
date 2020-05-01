@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 \documentclass[]{article}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
@@ -6,28 +12,49 @@
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
+<<<<<<< HEAD
 \else % if luatex or xelatex
   \ifxetex
     \usepackage{mathspec}
   \else
     \usepackage{fontspec}
   \fi
+=======
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
   \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
 \fi
 % use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 % use microtype if available
 \IfFileExists{microtype.sty}{%
+<<<<<<< HEAD
 \usepackage{microtype}
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \hypersetup{unicode=true,
+=======
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
             pdftitle={Report},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
+<<<<<<< HEAD
 \usepackage{color}
 \usepackage{fancyvrb}
 \newcommand{\VerbBar}{|}
@@ -68,6 +95,9 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+=======
+\usepackage[margin=1in]{geometry}
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -77,12 +107,15 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+<<<<<<< HEAD
 \IfFileExists{parskip.sty}{%
 \usepackage{parskip}
 }{% else
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
 }
+=======
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -97,6 +130,7 @@
 \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
 
+<<<<<<< HEAD
 %%% Use protect on footnotes to avoid problems with footnotes in titles
 \let\rmarkdownfootnote\footnote%
 \def\footnote{\protect\rmarkdownfootnote}
@@ -121,11 +155,55 @@
     \date{}
     \predate{}\postdate{}
   
+=======
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+<<<<<<< HEAD
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+% https://github.com/rstudio/rmarkdown/issues/337
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+% https://github.com/rstudio/rmarkdown/pull/252
+\usepackage{titling}
+\setlength{\droptitle}{-2em}
+
+\pretitle{\vspace{\droptitle}\centering\huge}
+\posttitle{\par}
+
+\preauthor{\centering\large\emph}
+\postauthor{\par}
+
+\predate{\centering\large\emph}
+\postdate{\par}
+
+\title{Report}
+\date{}
+=======
+
+\title{Report}
+\author{}
+\date{\vspace{-2.5em}}
+>>>>>>> 36e7dde30afe1aa986a93f3af8fbdac1445e2e13
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 
 \begin{document}
 \maketitle
 
+<<<<<<< HEAD
 \#\#Introduction
+=======
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 
 \hypertarget{i-background-information}{%
 \subsubsection{(i) Background
@@ -277,6 +355,7 @@ of Z, \(\beta\) and \(\alpha\):
   \(Z_s\) from the Negative Binomial sampling model.
 \end{enumerate}
 
+<<<<<<< HEAD
 \textless{}\textless{}\textless{}\textless{}\textless{}\textless{}\textless{}
 HEAD The resulting samples will be
 \((Z_1, \beta_1), ..., (Z_S, \beta_S)\). Ignoring \(\beta\), we generate
@@ -292,6 +371,26 @@ pretty well, although with comparatively large variance. ======= The
 resulting samples will be \((Z_1, \beta_1), ..., (Z_S, \beta_S)\).
 Ignoring \(\beta\), we generate posterior predive samples of \(Z\).
 
+=======
+The resulting samples will be \((Z_1, \beta_1), ..., (Z_S, \beta_S)\).
+Ignoring \(\beta\), we generate posterior predive samples of \(Z\). By
+comparing simulated samples with real data, we realize the posterior
+distribution tends to shrink towards 0 from positive side, with longer
+but thinner tails than the real distribution of data. It implies our
+posterior model is likely to predict more precincts with extreme stop
+rate, while failing to capture the trend of precincts with moderate stop
+rate. For most of the time, our model learns the variability of tails
+sufficiently. It captures the average stop rate for different precinct
+categories and crime types pretty well, although with comparatively
+large variance.
+
+<<<<<<< HEAD
+The resulting samples will be \((Z_1, \beta_1), ..., (Z_S, \beta_S)\).
+Ignoring \(\beta\), we generate posterior predive samples of \(Z\).
+
+=======
+>>>>>>> 36e7dde30afe1aa986a93f3af8fbdac1445e2e13
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 \hypertarget{interpretations-and-conclusions}{%
 \subsection{Interpretations and
 conclusions}\label{interpretations-and-conclusions}}
@@ -319,7 +418,13 @@ even when taking into account their overall population, including
 nuanced analysis done by taking into account day and mnight population
 changes to account for commerical and business activity.
 
+<<<<<<< HEAD
 \#\#\#(iii) Exploratory Data Analysis
+=======
+\hypertarget{iii-exploratory-data-analysis}{%
+\subsubsection{(iii) Exploratory Data
+Analysis}\label{iii-exploratory-data-analysis}}
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 
 From the plots below, other than median income, all of our numeric
 predictors appear reasonable with no extreme outliers that would
@@ -362,11 +467,16 @@ and crime type.
 For each fit, we simulated three several independent Markov chains from
 different starting points, stopping when the simulations from each chain
 alone were as variable as those from all of the chains mixed together
+<<<<<<< HEAD
 (Gelman(and Rubin 1992). We then gathered the last half of the simulated
+=======
+(Gelman and Rubin 1992). We then gathered the last half of the simulated
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 chains and used these to compute posterior estimates and(standard
 errors. For the analyses reported in this article, 10,000(iterations
 were always sufficient for mixing of the sequences.
 
+<<<<<<< HEAD
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{summary}\NormalTok{(cars)}
@@ -394,4 +504,6 @@ Note that the \texttt{echo\ =\ FALSE} parameter was added to the code
 chunk to prevent printing of the R code that generated the plot.
 
 
+=======
+>>>>>>> e82773fadf95aa04ebe7e9dfd16cc4f4c39d2a3b
 \end{document}
