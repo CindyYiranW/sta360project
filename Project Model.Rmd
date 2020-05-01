@@ -469,6 +469,7 @@ ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,])
 ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
 ```
 
+
 ### References:
 1. Index of /~gelman/arm/examples/police. Accessed April 20, 2020. http://www.stat.columbia.edu/~gelman/arm/examples/police/.
 2. “Bayesplot: Plotting for Bayesian Models - Bayesplot-Package.” - bayesplot-package • bayesplot. Accessed April 25, 2020. http://mc-stan.org/bayesplot/reference/bayesplot-package.html.
