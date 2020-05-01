@@ -1,8 +1,8 @@
 ---
 title: "STA360 Final Project Report"
 output:
-  rmarkdown::html_document:
-    theme: lumen
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -28,9 +28,9 @@ Our goal is to find out whether minorities (black and hispanic citizens) are dis
 Our data source is the stop-and-frisk dataset compiled by Andrew Gelman and Jennifer Hill in his book, and can be found [at this site](http://www.stat.columbia.edu/~gelman/arm/examples/police/frisk_with_noise.dat). It contains the times pedestrains are stopped in each of hte 75 precincts in New York City in 2005. We benefitted from his work and hence no further cleaning is necessary.
 Every row is a precinct's number of stops for a specific ethnicity and crime type, i.e. one precinct's total number of stops are spread across several rows. The following variables are in the dataset:
 
-_Numerica variables:_
-* stops: the number of stops for a specific ethnicity and crime type, specified by crime and eth variables in the same row 
-* pop: population of a specific ethnicity in the precinct specified by the precinct variable in the same row 
+_Numerical variables:_
++ stops: the number of stops for a specific ethnicity and crime type, specified by crime and eth variables in the same row 
++ pop: population of a specific ethnicity in the precinct specified by the precinct variable in the same row 
 * past.arrests: the number of arrests in the previous year for the ethnicity and crime type specified by crime and eth variables in the same row
 
 _Factor variables:_
@@ -90,9 +90,9 @@ The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\
 
 The resulting samples will be $(Z_1, \beta_1), ..., (Z_S, \beta_S)$. Ignoring $\beta$, we generate posterior predictive samples of $Z$.
 
-Below are the posterior predictive checks for violent crimes in precincts with less than 10% African American population. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
+Below are the posterior predictive checks for violent crimes in precincts with less than 10% African American population as an example, while the remaining 11 checks are put in the appendix. Our model captures the majority of the actual stops well, but doesn't have a very accurate grasp on the outliers. The variances of our predicted stops also varies more than we expected, but the actual mean is centered around the middle point of our predicted cases, so we think our model is a good fit overall.
 
-![](images/newppc1.png)
+![Posterior predictive checks for violent crimes in precincts with less than 10% African American population](images/newppc1.png)
 ![](images/newppc2.png)
 
 ## Interpretations and conclusions 
