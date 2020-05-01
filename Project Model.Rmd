@@ -469,6 +469,7 @@ ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,])
 ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
 ```
 
+
 ### References:
 http://www.stat.columbia.edu/~gelman/arm/examples/police/
 http://mc-stan.org/bayesplot/reference/bayesplot-package.html
