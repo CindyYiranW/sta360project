@@ -1,0 +1,627 @@
+---
+title: "Project Model"
+author: "Lynn Fan"
+date: "4/26/2020"
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+library(tidyverse)
+library(dplyr)
+library(glmnet)
+library(car)
+library(MASS)
+library(data.table)
+library(bayesm)
+library(ggplot2)
+library(R2admb)
+library(glmmADMB)
+library(lme4)
+library(tidyr)
+library(mcmc)
+library(dplyr)
+library(reshape2)
+library(bayesplot)
+library(varhandle)
+library(loo)
+```
+
+## Data Cleanup
+```{r data cleanup}
+data <- read.table("rawdata.txt", 
+               col.names=c('stops', 'pop', 'past.arrests', 'precinct', 'eth', 'crime'), 
+               fill=FALSE, 
+               strip.white=TRUE)
+```
+
+
+## Exploratory Data Analysis
+```{r dispersion}
+r <- c(mean(data$stops), var(data$stops))
+c(mean=r[1], var=r[2], ratio=r[2]/r[1])
+```
+Overdispersed, so we should do Negative Binomial instead of Poisson.
+
+```{r raneffect}
+png('ran_effect.png')
+data %>% 
+  group_by(precinct) %>%
+  ggplot(., mapping = aes(x = as.factor(precinct), y = stops)) +
+    geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust=1)) +
+  labs(title="number of stops by precincts", x="precincts")
+dev.off()
+```
+
+```{r regression}
+stops<-data$stops ; ethi<-as.factor(data$eth) ; precinct<-as.factor(data$precinct);arrest=data$past.arrests
+overdisp_fun <- function(model) {
+    rdf <- df.residual(model)
+    rp <- residuals(model,type="pearson")
+    Pearson.chisq <- sum(rp^2)
+    prat <- Pearson.chisq/rdf
+    pval <- pchisq(Pearson.chisq, df=rdf, lower.tail=FALSE)
+    c(chisq=Pearson.chisq,ratio=prat,rdf=rdf,p=pval)
+}
+# Poisson with random effects
+fit.poi <- glmer(stops~1+ethi+(1|precinct),family = poisson(link = "log"), nAGQ = 100)
+summary(fit.poi)
+overdisp_fun(fit.poi)
+# Negative Binomial
+fit.nb <- glmer.nb(stops~1+ethi+(1|precinct), verbose=TRUE)
+summary(fit.nb)
+overdisp_fun(fit.nb)
+```
+
+```{r hierarchial}
+n <- nrow(data)
+precinct.number <- unique(data$precinct)
+n.precinct <- length(precinct.number)
+precincts <- rep(NA,n)
+pblack <- rep(NA,n.precinct)
+for (i in 1:n.precinct) {
+  temp <- data[data$precinct==i,]
+  blackpop <- temp[temp$eth==1,]$pop[1]
+  totalpop <- temp[temp$eth==1,]$pop[1]+temp[temp$eth==2,]$pop[1]+temp[temp$eth==3,]$pop[1]
+  pblack[i]<-blackpop/totalpop
+}
+precinct.category <- ifelse (pblack < .1, 1, ifelse (pblack < .4, 2, 3))
+arrests <- data$past.arrests
+dcjs <- log(arrests*15/12)
+dcjs[which(!is.finite(dcjs))] <- 0
+crime <- data$crime
+pop <- data$pop
+stop_df <- as.data.frame (cbind(stops, ethi, precinct, crime, precinct.category, arrests, dcjs))
+stop_df$ethi <- as.factor(ethi)
+# Multilevel analysis of NYC police stops
+
+# lmer() fits
+M1 <- as.list (rep (NA, 12))
+M2 <- as.list (rep (NA, 12))
+index <- 0
+for (j in 1:3){
+  for (k in 1:4){
+    index <- index + 1
+    ok <- precinct.category==j & crime==k
+    M1[[index]] <- glmer(stops~1+dcjs+ethi+(1|precinct), #Poisson with random effect
+     family=poisson(link="log"), subset=ok, data=stop_df)
+    #Negative Binomial
+    M2[[index]] <- glmer.nb(stops~1+dcjs+ethi+(1|precinct), verbose=TRUE,subset=ok,data=stop_df,nAGQ=0)
+  }
+}
+M1[1]
+M2[1]
+anova(M1[[2]],M2[[2]])
+```
+negative binomial with overdispersion effect 
+
+how do we know proposal distribution? MVN
+Poisson GLM with random effects
+If NB: link function for negative binomial, try a bayesian glm package, see the parametization, and change the link
+  for negative binomial, the r parameter:
+  you need to sample both from beta and r for posterior sampling
+  
+prior for beta: MVN or whatever in the package
+prior for r: uninformative uniform distribution
+
+```{r stop-cleanup}
+stop_clean <- as.data.frame(cbind(stop_df$stops,stop_df$precinct.category,stop_df$crime,stop_df$dcjs,stop_df$arrests,to.dummy(stop_df$ethi, "ethi")))
+colnames(stop_clean) <- c("stops","precinct.category","crime","dcjs","arrests","black","hispanic","white")
+``` 
+
+```{r bayesm-1, echo=FALSE}
+R=1000
+set.seed(66)
+simnegbin = function(X, beta, alpha) {
+  # Simulate from the Negative Binomial Regression
+  lambda = exp(X%*%beta)
+  y = NULL
+  for (j in 1:length(lambda)) { y = c(y, rnbinom(1, mu=lambda[j], size=alpha)) }
+  return(y)
+}
+data1<-stop_clean[precinct.category==1 & crime==1,]
+nobs = nrow(data1)
+nvar = 3 # Number of X variables
+alpha = 5
+Vbeta = diag(nvar)*0.01
+# Construct the regdata (containing X)
+simnegbindata = data1
+beta = c(-1.1052,1.0529, -0.2125,-0.7315) #what we get from negative binomial regression
+X<-cbind(rep(1,length(data1$stops)),data1$dcjs,data1$hispanic,data1$white)
+simnegbindata = list(y=simnegbin(X,beta,alpha), X=X, beta=beta)
+Data1 = simnegbindata
+Mcmc1 = list(R=R)
+out = rnegbinRw(Data=Data1, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out$alphadraw, tvalues=alpha)
+summary(out$betadraw, tvalues=beta)
+## plotting examples
+out$acceptrbeta
+```
+
+```{r predictive check}
+betadraws <- out$betadraw #posterior beta
+alphadraws <- out$alphadraw #posterior alpha
+z.mcmc <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws)){ 
+  z <- simnegbin(X,betadraws[i,],alphadraws[i]) #sampling from the posterior
+  z.mcmc <- rbind(z.mcmc, z)
+}
+ppc_dens_overlay(data1$stops, z.mcmc[940:1000,]) 
+ppc_stat_2d(data1$stops, z.mcmc, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs<-c(expression(betadraws[,1]),expression(betadraws[,2]),expression(betadraws[,3],expression(betadraws[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws[thin,j],type="l",xlab="iteration",ylab=blabs[j])
+abline(h=mean(betadraws[,j]) )
+
+acf(betadraws[,j],ci.col="gray",xlab="lag")
+acf(betadraws[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-2, echo=FALSE}
+data2<-stop_clean[precinct.category==2 & crime==1,]
+nobs = nrow(data2)
+# Construct the regdata (containing X)
+simnegbindata2 = data2
+beta2 = c(-0.2951,0.9412,-0.3686,-1.0353)
+X2<-cbind(rep(1,length(data2$stops)),data2$dcjs,data2$hispanic,data2$white)
+simnegbindata2 = list(y=simnegbin(X2,beta2,alpha), X=X2, beta=beta2)
+Data2 = simnegbindata2
+Mcmc2 = list(R=R)
+out2 = rnegbinRw(Data=Data2, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out2$alphadraw, tvalues=alpha)
+summary(out2$betadraw, tvalues=beta2)
+
+betadraws2 <- out$betadraw
+alphadraws2 <- out$alphadraw
+z.mcmc2 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws2)){ 
+  z <- simnegbin(X2,betadraws2[i,],alphadraws2[i])
+  z.mcmc2 <- rbind(z.mcmc2, z)
+}
+ppc_dens_overlay(data2$stops, z.mcmc2[940:1000,]) 
+ppc_stat_2d(data2$stops, z.mcmc2, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs2<-c(expression(betadraws2[,1]),expression(betadraws2[,2]),expression(betadraws2[,3],expression(betadraws2[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws2[thin,j],type="l",xlab="iteration",ylab=blabs2[j])
+abline(h=mean(betadraws2[,j]) )
+
+acf(betadraws2[,j],ci.col="gray",xlab="lag")
+acf(betadraws2[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-3, echo=FALSE}
+data3<-stop_clean[precinct.category==3 & crime==1,]
+nobs = nrow(data3)
+# Construct the regdata (containing X)
+simnegbindata3 = data3
+beta3 <- c(0.3637,0.8602,-0.5615,-1.0791)
+X3<-cbind(rep(1,length(data3$stops)),data3$dcjs,data3$hispanic,data3$white)
+simnegbindata3 = list(y=simnegbin(X3,beta3,alpha), X=X3, beta=beta3)
+Data3 = simnegbindata3
+Mcmc3 = list(R=R)
+out3 = rnegbinRw(Data=Data3, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out3$alphadraw, tvalues=alpha)
+summary(out3$betadraw, tvalues=beta3)
+
+betadraws3 <- out3$betadraw
+alphadraws3 <- out3$alphadraw
+z.mcmc3 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws3)){ 
+  z <- simnegbin(X3,betadraws3[i,],alphadraws3[i])
+  z.mcmc3 <- rbind(z.mcmc3, z)
+}
+ppc_dens_overlay(data3$stops, z.mcmc3[940:1000,]) 
+ppc_stat_2d(data3$stops, z.mcmc3, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs3<-c(expression(betadraws3[,1]),expression(betadraws3[,2]),expression(betadraws3[,3],expression(betadraws3[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws3[thin,j],type="l",xlab="iteration",ylab=blabs3[j])
+abline(h=mean(betadraws3[,j]) )
+
+acf(betadraws3[,j],ci.col="gray",xlab="lag")
+acf(betadraws3[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-4, echo=FALSE}
+data4<-stop_clean[precinct.category==1 & crime==2,]
+nobs = nrow(data4)
+# Construct the regdata (containing X)
+simnegbindata4 = data4
+beta4 <- c(0.3158, 1.0483 ,-0.1337,-0.7454)
+X4<-cbind(rep(1,length(data4$stops)),data4$dcjs,data4$hispanic,data4$white)
+simnegbindata4 = list(y=simnegbin(X4,beta4,alpha), X=X4, beta=beta4)
+Data4 = simnegbindata4
+Mcmc4 = list(R=R)
+out4 = rnegbinRw(Data=Data4, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out4$alphadraw, tvalues=alpha)
+summary(out4$betadraw, tvalues=beta4)
+
+betadraws4 <- out4$betadraw
+alphadraws4 <- out4$alphadraw
+z.mcmc4 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws4)){ 
+  z <- simnegbin(X4,betadraws4[i,],alphadraws4[i])
+  z.mcmc4 <- rbind(z.mcmc4, z)
+}
+ppc_dens_overlay(data4$stops, z.mcmc4[940:1000,]) 
+ppc_stat_2d(data4$stops, z.mcmc4, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs4<-c(expression(betadraws4[,1]),expression(betadraws4[,2]),expression(betadraws4[,3],expression(betadraws4[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws4[thin,j],type="l",xlab="iteration",ylab=blabs4[j])
+abline(h=mean(betadraws4[,j]) )
+
+acf(betadraws4[,j],ci.col="gray",xlab="lag")
+acf(betadraws4[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+
+```{r bayesian-5, echo=FALSE}
+data5<-stop_clean[precinct.category==1 & crime==3,]
+nobs = nrow(data5)
+# Construct the regdata (containing X)
+simnegbindata5 = data5
+beta5 <- c(-0.849341,0.961556,0.166298, 0.004212)
+X5<-cbind(rep(1,length(data5$stops)),data5$dcjs,data5$hispanic,data5$white)
+simnegbindata5 = list(y=simnegbin(X5,beta5,alpha), X=X5, beta=beta5)
+Data5 = simnegbindata5
+Mcmc5 = list(R=R)
+out5 = rnegbinRw(Data=Data5, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out5$alphadraw, tvalues=alpha)
+summary(out5$betadraw, tvalues=beta5)
+
+betadraws5 <- out5$betadraw
+alphadraws5 <- out5$alphadraw
+z.mcmc5 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws5)){ 
+  z <- simnegbin(X5,betadraws5[i,],alphadraws5[i])
+  z.mcmc5 <- rbind(z.mcmc5, z)
+}
+ppc_dens_overlay(data5$stops, z.mcmc5[940:1000,]) 
+ppc_stat_2d(data5$stops, z.mcmc5, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs5<-c(expression(betadraws5[,1]),expression(betadraws5[,2]),expression(betadraws5[,3],expression(betadraws5[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws5[thin,j],type="l",xlab="iteration",ylab=blabs5[j])
+abline(h=mean(betadraws5[,j]) )
+
+acf(betadraws5[,j],ci.col="gray",xlab="lag")
+acf(betadraws5[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+
+
+
+```{r bayesian-6, echo=FALSE}
+data6<-stop_clean[precinct.category==1 & crime==4,]
+nobs = nrow(data6)
+# Construct the regdata (containing X)
+simnegbindata6 = data6
+beta6 <- c(0.0846, 0.6786,0.1546,-0.3825)
+X6<-cbind(rep(1,length(data6$stops)),data6$dcjs,data6$hispanic,data6$white)
+simnegbindata6 = list(y=simnegbin(X6,beta6,alpha), X=X6, beta=beta6)
+Data6 = simnegbindata6
+Mcmc6 = list(R=R)
+out6 = rnegbinRw(Data=Data6, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out6$alphadraw, tvalues=alpha)
+summary(out6$betadraw, tvalues=beta6)
+
+betadraws6 <- out6$betadraw
+alphadraws6 <- out6$alphadraw
+z.mcmc6 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws6)){ 
+  z <- simnegbin(X6,betadraws6[i,],alphadraws6[i])
+  z.mcmc6 <- rbind(z.mcmc5, z)
+}
+ppc_dens_overlay(data6$stops, z.mcmc6[940:1000,]) 
+ppc_stat_2d(data6$stops, z.mcmc6, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs6<-c(expression(betadraws6[,1]),expression(betadraws6[,2]),expression(betadraws6[,3],expression(betadraws6[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws6[thin,j],type="l",xlab="iteration",ylab=blabs6[j])
+abline(h=mean(betadraws6[,j]) )
+
+acf(betadraws6[,j],ci.col="gray",xlab="lag")
+acf(betadraws6[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-7, echo=FALSE}
+data7<-stop_clean[precinct.category==2 & crime==2,]
+nobs = nrow(data7)
+# Construct the regdata (containing X)
+simnegbindata7 = data7
+beta7 <- c(0.8441,0.9329,-8.705e-05,-0.5229) #M2[[6]]
+X7<-cbind(rep(1,length(data7$stops)),data7$dcjs,data7$hispanic,data7$white)
+simnegbindata7 = list(y=simnegbin(X7,beta7,alpha), X=X7, beta=beta7)
+Data7 = simnegbindata7
+Mcmc7 = list(R=R)
+out7 = rnegbinRw(Data=Data7, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out7$alphadraw, tvalues=alpha)
+summary(out7$betadraw, tvalues=beta7)
+
+betadraws7 <- out7$betadraw
+alphadraws7 <- out7$alphadraw
+z.mcmc7 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws7)){ 
+  z <- simnegbin(X7,betadraws7[i,],alphadraws7[i])
+  z.mcmc7 <- rbind(z.mcmc7, z)
+}
+ppc_dens_overlay(data7$stops, z.mcmc7[940:1000,]) 
+ppc_stat_2d(data7$stops, z.mcmc7, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs7<-c(expression(betadraws7[,1]),expression(betadraws7[,2]),expression(betadraws7[,3],expression(betadraws7[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws7[thin,j],type="l",xlab="iteration",ylab=blabs7[j])
+abline(h=mean(betadraws7[,j]) )
+
+acf(betadraws7[,j],ci.col="gray",xlab="lag")
+acf(betadraws7[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+
+```{r bayesian-8, echo=FALSE}
+data8<-stop_clean[precinct.category==2 & crime==3,]
+nobs = nrow(data8)
+# Construct the regdata (containing X)
+simnegbindata8 = data8
+beta8 <- c(0.2109,0.7563,0.4820,0.2032 ) #M2[[7]]
+X8<-cbind(rep(1,length(data8$stops)),data8$dcjs,data8$hispanic,data8$white)
+simnegbindata8 = list(y=simnegbin(X8,beta8,alpha), X=X8, beta=beta8)
+Data8 = simnegbindata8
+Mcmc8 = list(R=R)
+out8 = rnegbinRw(Data=Data8, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out8$alphadraw, tvalues=alpha)
+summary(out8$betadraw, tvalues=beta8)
+
+betadraws8 <- out8$betadraw
+alphadraws8 <- out8$alphadraw
+z.mcmc8 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws8)){ 
+  z <- simnegbin(X8,betadraws8[i,],alphadraws8[i])
+  z.mcmc8 <- rbind(z.mcmc8, z)
+}
+ppc_dens_overlay(data8$stops, z.mcmc8[940:1000,]) 
+ppc_stat_2d(data8$stops, z.mcmc8, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs8<-c(expression(betadraws8[,1]),expression(betadraws8[,2]),expression(betadraws8[,3],expression(betadraws8[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws8[thin,j],type="l",xlab="iteration",ylab=blabs8[j])
+abline(h=mean(betadraws8[,j]) )
+
+acf(betadraws8[,j],ci.col="gray",xlab="lag")
+acf(betadraws8[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-9, echo=FALSE}
+data9<-stop_clean[precinct.category==2 & crime==4,]
+nobs = nrow(data9)
+# Construct the regdata (containing X)
+simnegbindata9 = data9
+beta9 <- c(-0.26012,0.72009,0.09347,-0.13026) #M2[[8]]
+X9<-cbind(rep(1,length(data9$stops)),data9$dcjs,data9$hispanic,data9$white)
+simnegbindata9 = list(y=simnegbin(X9,beta9,alpha), X=X9, beta=beta9)
+Data9 = simnegbindata9
+Mcmc9 = list(R=R)
+out9 = rnegbinRw(Data=Data9, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out9$alphadraw, tvalues=alpha)
+summary(out9$betadraw, tvalues=beta9)
+
+betadraws9 <- out9$betadraw
+alphadraws9 <- out9$alphadraw
+z.mcmc9 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws9)){ 
+  z <- simnegbin(X9,betadraws9[i,],alphadraws9[i])
+  z.mcmc9 <- rbind(z.mcmc9, z)
+}
+ppc_dens_overlay(data9$stops, z.mcmc9[940:1000,]) 
+ppc_stat_2d(data9$stops, z.mcmc9, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs9<-c(expression(betadraws9[,1]),expression(betadraws9[,2]),expression(betadraws9[,3],expression(betadraws9[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws9[thin,j],type="l",xlab="iteration",ylab=blabs9[j])
+abline(h=mean(betadraws9[,j]) )
+
+acf(betadraws9[,j],ci.col="gray",xlab="lag")
+acf(betadraws9[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-10, echo=FALSE}
+data10<-stop_clean[precinct.category==3 & crime==2,]
+nobs = nrow(data10)
+# Construct the regdata (containing X)
+simnegbindata10 = data10
+beta10 <- c(0.98258,0.93954,-0.09601,-0.60514 ) #M2[[10]]
+X10<-cbind(rep(1,length(data10$stops)),data10$dcjs,data10$hispanic,data10$white)
+simnegbindata10 = list(y=simnegbin(X10,beta10,alpha), X=X10, beta=beta10)
+Data10 = simnegbindata10
+Mcmc10 = list(R=R)
+out10 = rnegbinRw(Data=Data10, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out10$alphadraw, tvalues=alpha)
+summary(out10$betadraw, tvalues=beta10)
+
+betadraws10 <- out10$betadraw
+alphadraws10 <- out10$alphadraw
+z.mcmc10 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws10)){ 
+  z <- simnegbin(X10,betadraws10[i,],alphadraws10[i])
+  z.mcmc10 <- rbind(z.mcmc10, z)
+}
+ppc_dens_overlay(data10$stops, z.mcmc10[940:1000,]) 
+ppc_stat_2d(data10$stops, z.mcmc10, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs10<-c(expression(betadraws10[,1]),expression(betadraws10[,2]),expression(betadraws10[,3],expression(betadraws10[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws10[thin,j],type="l",xlab="iteration",ylab=blabs10[j])
+abline(h=mean(betadraws10[,j]) )
+
+acf(betadraws10[,j],ci.col="gray",xlab="lag")
+acf(betadraws10[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-11, echo=FALSE}
+data11<-stop_clean[precinct.category==3 & crime==3,]
+nobs = nrow(data11)
+# Construct the regdata (containing X)
+simnegbindata11 = data11
+beta11 <- c(0.2157,0.7845, 0.1470,0.3764) #M2[[11]]
+X11<-cbind(rep(1,length(data11$stops)),data11$dcjs,data11$hispanic,data11$white)
+simnegbindata11 = list(y=simnegbin(X11,beta11,alpha), X=X11, beta=beta11)
+Data11 = simnegbindata11
+Mcmc11 = list(R=R)
+out11 = rnegbinRw(Data=Data11, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out11$alphadraw, tvalues=alpha)
+summary(out11$betadraw, tvalues=beta11)
+
+betadraws11 <- out11$betadraw
+alphadraws11 <- out11$alphadraw
+z.mcmc11 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws11)){ 
+  z <- simnegbin(X11,betadraws11[i,],alphadraws11[i])
+  z.mcmc11 <- rbind(z.mcmc11, z)
+}
+ppc_dens_overlay(data11$stops, z.mcmc11[940:1000,]) 
+ppc_stat_2d(data11$stops, z.mcmc11, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs11<-c(expression(betadraws11[,1]),expression(betadraws11[,2]),expression(betadraws11[,3],expression(betadraws11[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws11[thin,j],type="l",xlab="iteration",ylab=blabs11[j])
+abline(h=mean(betadraws11[,j]) )
+
+acf(betadraws11[,j],ci.col="gray",xlab="lag")
+acf(betadraws11[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+
+```{r bayesian-12, echo=FALSE}
+data12<-stop_clean[precinct.category==3 & crime==4,]
+nobs = nrow(data12)
+# Construct the regdata (containing X)
+simnegbindata12 = data12
+beta12 <- c(-0.37151,0.74176,-0.09273,-0.59405) #M2[[12]]
+X12<-cbind(rep(1,length(data12$stops)),data12$dcjs,data12$hispanic,data12$white)
+simnegbindata12 = list(y=simnegbin(X12,beta12,alpha), X=X12, beta=beta12)
+Data12 = simnegbindata12
+Mcmc12 = list(R=R)
+out12 = rnegbinRw(Data=Data12, Mcmc=list(R=R))
+cat("Summary of alpha/beta draw", fill=TRUE)
+summary(out12$alphadraw, tvalues=alpha)
+summary(out12$betadraw, tvalues=beta12)
+
+betadraws12 <- out12$betadraw
+alphadraws12 <- out12$alphadraw
+z.mcmc12 <- NULL
+# posterior predictive
+for(i in 1:nrow(betadraws12)){ 
+  z <- simnegbin(X12,betadraws12[i,],alphadraws12[i])
+  z.mcmc12 <- rbind(z.mcmc12, z)
+}
+ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,]) 
+ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs12<-c(expression(betadraws12[,1]),expression(betadraws12[,2]),expression(betadraws12[,3],expression(betadraws12[,4])))
+thin<-c(1,(1:100)*(R/100))
+j<-4
+plot(thin,betadraws12[thin,j],type="l",xlab="iteration",ylab=blabs12[j])
+abline(h=mean(betadraws12[,j]) )
+
+acf(betadraws12[,j],ci.col="gray",xlab="lag")
+acf(betadraws12[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
+```
+

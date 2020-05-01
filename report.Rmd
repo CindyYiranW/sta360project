@@ -142,6 +142,22 @@ Our model controlled for variation on precinct-to-precinct stop rate and crime t
 
 ![Confidence intervals and quantiles for all coefficients, grouped by crime type and precinct black population percentage ](images/quantile.png)
 
+#### PPC checks and thinning for all models 
+
+Below are all PPC checks and thinning, where crime: 1=violent, 2=weapons, 3=property, 4=drug, and precinct: 1=<10% black, 2=10-40%, 3= >40% black population. 
+
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 2](images/quantile.png)
+![Model 1, crime = 1, precinct = 3](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+![Model 1, crime = 1, precinct = 1](images/quantile.png)
+
 ### References:
 1. Index of /~gelman/arm/examples/police. Accessed April 20, 2020. http://www.stat.columbia.edu/~gelman/arm/examples/police/.
 2. “Bayesplot: Plotting for Bayesian Models - Bayesplot-Package.” - bayesplot-package • bayesplot. Accessed April 25, 2020. http://mc-stan.org/bayesplot/reference/bayesplot-package.html.
