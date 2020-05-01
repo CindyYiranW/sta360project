@@ -58,7 +58,7 @@ Pr(Y_{ep} = y_{ep}|\lambda_p,\alpha_e) = \frac{\Gamma(y_{ep} + \alpha_e^{-1})}{\
 
 ## Methodology for prior and posterior
 
-We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. Setting prior distribution on regression coefficient $\beta$ and over-dispersion factor $\alpha$ as follows: 
+We have 12 sampling models defined by different combinations of 3 precinct categories and 4 crime types. We Setting prior distribution on regression coefficient $\beta$ and over-dispersion factor $\alpha$ as follows: 
 
 \[
 \begin{eqnarray} 
@@ -112,11 +112,11 @@ We analyze the stop rates at which New Yorkers of different ethinicy were stoppe
 
 ### (i) Limitations of the data 
 
-missing predictors, overdispersion, impossible to have every single predictor (i.e. every single factor the police considers when making a stop), that would include factors like age and gender of the pedestrain as well as many circumstantial cues. 
+There are missing predictors and possible confounding variables that could impact on stop rate, since it's impossible to account for every single factor the police considers when making a stop, such as age and gender of the pedestreain and many circumstantial cues. There is also a significant overdispersion in our data, which we contolled to certain extent with hierarchical Negative Binomial sampling model. 
 
 ### (ii) Limitation of the analysis 
 
-controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
+Our model controlled for variation on precinct-to-precinct stop rate and crime type, but not on population and demographics. However, there is already a plenty of literature demonstratng that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day-and-night population changes to account for commerical and business activity.
 
 ### Appendix: 
 
