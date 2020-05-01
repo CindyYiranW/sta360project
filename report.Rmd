@@ -110,7 +110,6 @@ Below are the posterior predictive checks for violent crimes in precincts with l
 5) the coefficients of dcjs (the number of arrests last year) are consistent across different crime types and precinct categories, as the 95% credible interval of coefficient is roughly (0.5, 1) all around. i.e. for all races, previous year's arrest rate for their race makes it more likely for pedestrians of that race to be stopped.
 
 
-
 ## Limitations
 
 ### (i) Limitations of the data 
@@ -121,9 +120,10 @@ missing predictors, overdispersion, impossible to have every single predictor (i
 
 controlled for precinct to precinct variation and crime type, but not population and/or demographics. However, there is already plenty literature that demonstrate that minority groups are stopped more oftan even when taking into account their overall population, including nuanced analysis done by taking into account day and mnight population changes to account for commerical and business activity.
 
-### (iii) Exploratory Data Analysis
+### Appendix: 
 
-From the plots below, other than median income, all of our numeric predictors appear reasonable with no extreme outliers that would necessitate transformation. There are a few observations with median income of around $90,000, which is a large jump from around $70,000 where the next highest observations are. We log-transform median income to correct for the variable’s skewed distribution.
+
+![Confidence intervals and quantiles for all coefficients, grouped by crime type and precinct black population percentage ](images/quantile.png)
 
 ### References:
 1. Index of /~gelman/arm/examples/police. Accessed April 20, 2020. http://www.stat.columbia.edu/~gelman/arm/examples/police/.
