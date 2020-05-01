@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.3.8)  30 APR 2020 14:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.30)  30 APR 2020 18:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **report.tex
 (./report.tex
 LaTeX2e <2020-02-02> patch level 5
-L3 programming layer <2020-02-25> (/Users/lynnfan/Library/TinyTeX/texmf-dist/te
+L3 programming layer <2020-04-06> (/Users/lynnfan/Library/TinyTeX/texmf-dist/te
 x/latex/base/article.cls
 Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/base/size10.clo
@@ -122,7 +122,7 @@ LaTeX Info: Redefining \] on input line 2860.
 ) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/generic/iftex/ifxetex.sty
 Package: ifxetex 2019/10/25 v0.7 ifxetex legacy package. Use iftex instead.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
-Package: iftex 2019/11/07 v1.0c TeX engine tests
+Package: iftex 2020/03/06 v1.0d TeX engine tests
 )) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/generic/iftex/ifluatex.sty
 Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
 ) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/base/fixltx2e.sty
@@ -200,7 +200,6 @@ Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
 )
 \Hy@SavedSpaceFactor=\count189
-\pdfmajorversion=\count190
 Package hyperref Info: Option `unicode' set `true' on input line 4421.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2020/01/14 v7.00d Hyperref: PDF Unicode definition (HO)
@@ -214,7 +213,7 @@ Package hyperref Info: Plain pages OFF on input line 4562.
 Package hyperref Info: Backreferencing OFF on input line 4567.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4800.
-\c@Hy@tempcnt=\count191
+\c@Hy@tempcnt=\count190
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
@@ -229,7 +228,7 @@ y
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
 )
 ))
-\Fld@menulength=\count192
+\Fld@menulength=\count191
 \Field@Width=\dimen146
 \Fld@charsize=\dimen147
 Package hyperref Info: Hyper figures OFF on input line 6430.
@@ -244,9 +243,9 @@ LaTeX Info: Redefining \pageref on input line 6504.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/generic/atbegshi/atbegshi.sty
 Package: atbegshi 2019/12/05 v1.19 At begin shipout hook (HO)
 )
-\Hy@abspage=\count193
-\c@Item=\count194
-\c@Hfootnote=\count195
+\Hy@abspage=\count192
+\c@Item=\count193
+\c@Hfootnote=\count194
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
@@ -255,8 +254,8 @@ File: hpdftex.def 2020/01/14 v7.00d Hyperref driver for pdfTeX
 Package: atveryend 2019-12-11 v1.11 Hooks at the very end of document (HO)
 Package atveryend Info: \enddocument detected (standard20110627).
 )
-\Fld@listcount=\count196
-\c@bookmark@seq@number=\count197
+\Fld@listcount=\count195
+\c@bookmark@seq@number=\count196
 
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilech
 eck.sty
@@ -277,9 +276,9 @@ Package: geometry 2020/01/02 v5.9 Page Geometry
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count198
-\Gm@cntv=\count199
-\c@Gm@tempcnt=\count266
+\Gm@cnth=\count197
+\Gm@cntv=\count198
+\c@Gm@tempcnt=\count199
 \Gm@bindingoffset=\dimen148
 \Gm@wd@mp=\dimen149
 \Gm@odd@mp=\dimen150
@@ -289,29 +288,6 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 \Gm@layouthoffset=\dimen154
 \Gm@layoutvoffset=\dimen155
 \Gm@dimlist=\toks24
-) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty
-Package: color 2019/11/23 v1.2a Standard LaTeX Color (DPC)
-(/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
-File: color.cfg 2016/01/02 v1.6 sample color configuration
-)
-Package color Info: Driver file: pdftex.def on input line 147.
-(/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
-File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
-)) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
-Package: fancyvrb 2020/01/13 v3.5 verbatim text (tvz,hv)
-\FV@CodeLineNo=\count267
-\FV@InFile=\read2
-\FV@TabBox=\box47
-\c@FancyVerbLine=\count268
-\FV@StepNumber=\count269
-\FV@OutFile=\write3
-) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/framed/framed.sty
-Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
-\OuterFrameSep=\skip53
-\fb@frw=\dimen156
-\fb@frh=\dimen157
-\FrameRule=\dimen158
-\FrameSep=\dimen159
 ) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2019/11/30 v1.2a Enhanced LaTeX Graphics (DPC,SPQR)
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
@@ -323,9 +299,11 @@ g
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 105.
-)
-\Gin@req@height=\dimen160
-\Gin@req@width=\dimen161
+(/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen156
+\Gin@req@width=\dimen157
 ) (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/grffile/grffile.sty
 Package: grffile 2019/11/11 v2.1 Extended file name support for graphics (legac
 y)
@@ -334,33 +312,32 @@ line 40.
 )
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdfmod
 e.def
-File: l3backend-pdfmode.def 2020-02-23 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count270
-\l__pdf_internal_box=\box48
-)
-No file report.aux.
+File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
+\l__kernel_color_stack_int=\count266
+\l__pdf_internal_box=\box47
+) (./report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-\AtBeginShipoutBox=\box49
-Package hyperref Info: Link coloring OFF on input line 110.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+\AtBeginShipoutBox=\box48
+Package hyperref Info: Link coloring OFF on input line 70.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
@@ -370,13 +347,14 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 tring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count271
+\c@section@level=\count267
 )
-LaTeX Info: Redefining \ref on input line 110.
-LaTeX Info: Redefining \pageref on input line 110.
-LaTeX Info: Redefining \nameref on input line 110.
-\@outlinefile=\write4
-\openout4 = `report.out'.
+LaTeX Info: Redefining \ref on input line 70.
+LaTeX Info: Redefining \pageref on input line 70.
+LaTeX Info: Redefining \nameref on input line 70.
+(./report.out) (./report.out)
+\@outlinefile=\write3
+\openout3 = `report.out'.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -424,67 +402,67 @@ fg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-12.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 7
+2.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-12.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 7
+2.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-112.
+72.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-112.
+72.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 112.
+(Font)              <12> on input line 72.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 112.
+(Font)              <8> on input line 72.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 112.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 112
-.
+(Font)              <6> on input line 72.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 72.
+
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 112
-.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 72.
+
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/Users/lynnfan/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-94.
+55.
 (/Users/lynnfan/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 209.
+(Font)              <10> on input line 170.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 209.
+(Font)              <7> on input line 170.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 209.
+(Font)              <5> on input line 170.
 ! Missing \endgroup inserted.
 <inserted text> 
                 \endgroup 
-l.212 \begin{eqnarray}
+l.174 \begin{eqnarray}
                        
 Here is how much of TeX's memory you used:
- 10505 strings out of 482913
- 151671 string characters out of 5958408
- 392098 words of memory out of 5000000
- 25595 multiletter control sequences out of 15000+600000
+ 10007 strings out of 482605
+ 144176 string characters out of 5951146
+ 380315 words of memory out of 5000000
+ 25409 multiletter control sequences out of 15000+600000
  576208 words of font info for 62 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 34i,5n,34p,240b,318s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,5n,34p,527b,317s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 !  ==> Fatal error occurred, no output PDF file produced!
