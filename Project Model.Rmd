@@ -48,6 +48,14 @@ c(mean=r[1], var=r[2], ratio=r[2]/r[1])
 ```
 Overdispersed, so we should do Negative Binomial instead of Poisson.
 
+```{r raneffect}
+data %>% 
+  group_by(precinct) %>%
+  ggplot(., mapping = aes(x = as.factor(precinct), y = stops)) +
+    geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust=1)) +
+  labs(title="number of stops by precincts", x="precincts")
+```
+
 ```{r regression}
 stops<-data$stops ; ethi<-as.factor(data$eth) ; precinct<-as.factor(data$precinct);arrest=data$past.arrests
 overdisp_fun <- function(model) {
@@ -468,6 +476,17 @@ for(i in 1:nrow(betadraws12)){
 ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,]) 
 ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
 ```
+
+```{r}
+datalist <- bind_rows(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12)
+datalist <- as.matrix(datalist)
+head(datalist)
+ggplot(datalist, aes(precinct.category, unemploy)) + 
+  geom_line()
+summary(betadraws12)
+```
+
+
 
 ### References:
 http://www.stat.columbia.edu/~gelman/arm/examples/police/

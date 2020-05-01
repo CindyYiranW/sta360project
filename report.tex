@@ -1,0 +1,397 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Report},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Report}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{}
+    \preauthor{}\postauthor{}
+    \date{}
+    \predate{}\postdate{}
+  
+
+\begin{document}
+\maketitle
+
+\#\#Introduction
+
+\hypertarget{i-background-information}{%
+\subsubsection{(i) Background
+Information}\label{i-background-information}}
+
+Racial profiling in policing has always been a huge point of contention.
+It is defined as police practice that relies on certain racial
+characteristics they believe to be associated with crime. This issue is
+especially prominent in selective policing strategies such as
+``stop-and-frisk'', i.e.~deciding which pedestrains to search, question,
+or frisk, a program in New York City that has caused numerous civil
+rights controversies. Police have defended the strategy by claiming
+that, while stop-rates are higher for non-white citizens, it only
+reflects reasonable prior knowledge or experience such as historic crime
+rates by race, or that other counfounding factors such as variation
+between precincts (neighbourhoods).
+
+\hypertarget{ii-goals-relevant-issues-and-challenges}{%
+\subsubsection{(ii) Goals, relevant issues, and
+challenges}\label{ii-goals-relevant-issues-and-challenges}}
+
+Our goal is to find out whether minorities (black and hispanic citizens)
+are disproportionately targeted even when taking into account to
+historic crime rates (approximated by arrest rates from the previous
+year) and variances in precinct as a random effect. To do this, we take
+the approach of modelling stop rates based on previous year's arrests,
+categorized by ethnicity and crime type, while making precinct a random
+effect in the sampling model. We then examine the coefficients of the
+posterior distribution to see whether past year's crimes would affect
+minority and white group stop rates in a similar way.
+
+\hypertarget{iii-data-source-cleaning-variables-description-and-limitations-in-the-data}{%
+\subsubsection{(iii) Data source, cleaning, variables description, and
+limitations in the
+data}\label{iii-data-source-cleaning-variables-description-and-limitations-in-the-data}}
+
+Our data source is the stop-and-frisk dataset compiled by Andrew Gelman
+and Jennifer Hill in his book, and can be found
+\href{http://www.stat.columbia.edu/~gelman/arm/examples/police/frisk_with_noise.dat}{at
+this site}. It contains the times pedestrains are stopped in each of hte
+75 precincts in New York City in 2005. We benefitted from his work and
+hence no further cleaning is necessary. Every row is a precinct's number
+of stops for a specific ethnicity and crime type, i.e.~one precinct's
+total number of stops are spread across several rows. The following
+variables are in the dataset:
+
+\emph{Numerica variables:} stops: the number of stops for a specific
+ethnicity and crime type, specified by crime and eth variables in the
+same row pop: population of a specific ethnicity in the precinct
+specified by the precinct variable in the same row past.arrests: the
+number of arrests in the previous year for the ethnicity and crime type
+specified by crime and eth variables in the same row
+
+\emph{Factor variables:} precinct: numbered from 1-75 eth: 1=black,
+2=hispanic, 3=white crime: 1=violent, 2=weapons, 3=property, 4=drug
+
+\hypertarget{initial-eda-and-sampling-model-specification}{%
+\subsection{Initial EDA and sampling model
+specification}\label{initial-eda-and-sampling-model-specification}}
+
+Since our data is count data, it is reasonable to use either the Poisson
+or Negative Binomial distribution for the sampling model. We realized by
+running quick summary statistics on response variable stop rate that
+there is overdispersion, i.e.~the variance of 47254 is far greater than
+the mean of 146. This gives us the idea that Negative Binomial
+distribution is more appropriate to account for overdispersion factors.
+We also do not have any zero values, so zero-inflated versions of
+Poisson or Negative Binomial are not applicable. We validated this by
+fitting a Poisson and Negative Binomial regression model with precinct
+as the random effect, and by comparing the AIC/BIC it shows that indeed
+the Negative Binomial is a much better model fit.
+
+We also want to divide up the precincts by the portion of black
+population in it, as we want to account for previous police claims that
+relate to the demographics of a precinct. For example, police claim that
+they are more likely to stop black pedestrians in the case where the
+black pedestrian is in a predominantely white neighbourhood, and vice
+versa. Hence, by categorizing precincts based on the proportion of black
+population, we can use it to examine if disproportionate stopping of
+minorities still exists in predominantely white or black neighborhoods.
+Hence we created the variable \texttt{pblack} which categorizes
+precincts with \textless{}10\%, 10-40\%, or \textgreater{} 40\% black
+population.
+
+Next, we want to incorporate the hiearchial element into the model, as
+we have 3 different precinct categories (\textless{}10\%, 10-40\%, or
+\textgreater{} 40\% black population) and 4 different crime types
+(violent, weapons, property, drug). Previous literature has suggested
+that police reports having different strategies for different precinct,
+for example being more aggressive towards stopping pedestrains in high
+crime precincts, or having higher stop rates because some crime types
+are easier to spot than others. Hence, it is not ideal to do regression
+without distinguishing effects of different precincts and crime types.
+This calls for a hiearchial Negative Binomial program as follows:
+
+\(\lambda\) = mean, \(\alpha\) = over-dispersion factor
+
+\[
+\lambda_i = exp(\vec{x^T\beta})\\
+\begin{eqnarray}
+Y|\lambda, \alpha & \sim & NB(\lambda, \alpha)\\ 
+\end{eqnarray} \\
+Pr(Y=y|\lambda,\alpha) = \frac{\Gamma(y_i + a^{-1})}{\Gamma(a^{-1})\Gamma(y_i + 1)}(\frac{1}{1+ \alpha\lambda_i})^{a^{-1}}(\frac{\alpha\lambda_i}{1+\alpha\lambda_i})^y_i
+\]
+
+\hypertarget{methodology-prior-posterior}{%
+\subsection{Methodology (prior,
+posterior)}\label{methodology-prior-posterior}}
+
+We have 12 sampling models defined by different combinations of 3
+precinct categories and 4 crime types. Setting prior distribution on
+regression coefficient \(\beta\) and over-dispersion factor \(\alpha\)
+as follows:
+
+\[
+\begin{eqnarray} 
+\beta & \sim & \mathrm{N}(\overline{\beta}, A^{-1})\\
+\alpha & \sim & Gamma(a,b)\\
+\end{eqnarray}
+\]
+
+We generate 12 posterior distributions on the parameters \(\beta\) and
+\(\alpha\).
+
+\hypertarget{posterior-predictive-and-checks}{%
+\subsection{Posterior predictive and
+checks}\label{posterior-predictive-and-checks}}
+
+MCMC samples of parameters \(\beta\) and \(\alpha\) from 12 posterior
+distributions using metropolis algorithm. Since our goal is to predict
+stop rate for this year in order to compare to last year's arrest rate,
+we could simulate the predictive distribution \([Z|data]\) using the
+posterior distribution \([\beta|data]\). Based on the joint distribution
+of Z, \(\beta\) and \(\alpha\):
+
+\[
+[Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
+=[Z|\beta, \alpha][\beta|data]
+\]
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Draw S samples \(\beta_1\), \ldots{}, \(\beta_S\) from the posterior
+  distribution \([\beta|data]\).
+\item
+  Conditional on each posterior sample \(\beta_s\), draw a sample
+  \(Z_s\) from the Negative Binomial sampling model.
+\end{enumerate}
+
+\textless{}\textless{}\textless{}\textless{}\textless{}\textless{}\textless{}
+HEAD The resulting samples will be
+\((Z_1, \beta_1), ..., (Z_S, \beta_S)\). Ignoring \(\beta\), we generate
+posterior predive samples of \(Z\). By comparing simulated samples with
+real data, we realize the posterior distribution tends to shrink towards
+0 from positive side, with longer but thinner tails than the real
+distribution of data. It implies our posterior model is likely to
+predict more precincts with extreme stop rate, while failing to capture
+the trend of precincts with moderate stop rate. For most of the time,
+our model learns the variability of tails sufficiently. It captures the
+average stop rate for different precinct categories and crime types
+pretty well, although with comparatively large variance. ======= The
+resulting samples will be \((Z_1, \beta_1), ..., (Z_S, \beta_S)\).
+Ignoring \(\beta\), we generate posterior predive samples of \(Z\).
+
+\hypertarget{interpretations-and-conclusions}{%
+\subsection{Interpretations and
+conclusions}\label{interpretations-and-conclusions}}
+
+\hypertarget{limitations}{%
+\subsection{Limitations}\label{limitations}}
+
+\hypertarget{i-limitations-of-the-data}{%
+\subsubsection{(i) Limitations of the
+data}\label{i-limitations-of-the-data}}
+
+missing predictors, overdispersion, impossible to have every single
+predictor (i.e.~every single factor the police considers when making a
+stop), that would include factors like age and gender of the pedestrain
+as well as many circumstantial cues.
+
+\hypertarget{ii-limitation-of-the-analysis}{%
+\subsubsection{(ii) Limitation of the
+analysis}\label{ii-limitation-of-the-analysis}}
+
+controlled for precinct to precinct variation and crime type, but not
+population and/or demographics. However, there is already plenty
+literature that demonstrate that minority groups are stopped more oftan
+even when taking into account their overall population, including
+nuanced analysis done by taking into account day and mnight population
+changes to account for commerical and business activity.
+
+\#\#\#(iii) Exploratory Data Analysis
+
+From the plots below, other than median income, all of our numeric
+predictors appear reasonable with no extreme outliers that would
+necessitate transformation. There are a few observations with median
+income of around \$90,000, which is a large jump from around \$70,000
+where the next highest observations are. We log-transform median income
+to correct for the variable's skewed distribution.
+
+We analyze the rates at which New Yorkers of differ- ent ethnic groups
+were stopped by the police on the city streets, to assess the central
+claim that race-specific stop rates reflect nothing more than
+race-specific crime rates.
+
+We address this question in several different ways using data on police
+stops and conclude that members of minority groups were stopped more
+often than whites, both in comparison to their overall population and to
+the estimated rates of crime that they have committed.
+
+When compared in that way, the ratio of stops to DCJS arrests was 1.24
+for whites, 1.54 for blacks, and 1.72 for Hispanics; based on this
+comparison, blacks are stopped 23\% more often than whites and Hispanics
+are stopped 39\% more often than whites.
+
+But suppose that the police make more stops in high-crime areas but
+treat the different ethnic groups equally within any locality. Then the
+citywide ratios could show significant differences between ethnic groups
+even if stops were determined entirely by location rather than by
+ethnicity. Because it is pos- sible that the patterns are systematically
+different in neigh- borhoods with different ethnic compositions, we
+divided the precincts into three categories in terms of their black
+popula- tion: precincts that were less than 10\% black, 10--40\% black,
+and more than 40\% black.
+
+We conducted separate comparisons for violent crimes, weapons offenses,
+property crimes, and drug crimes. For each, we modeled the number of
+stops yep by ethnic group e and precinct p for that crime type, using as
+a baseline the DCJS arrest count nep for that ethnic group, precinct,
+and crime type.
+
+For each fit, we simulated three several independent Markov chains from
+different starting points, stopping when the simulations from each chain
+alone were as variable as those from all of the chains mixed together
+(Gelman(and Rubin 1992). We then gathered the last half of the simulated
+chains and used these to compute posterior estimates and(standard
+errors. For the analyses reported in this article, 10,000(iterations
+were always sufficient for mixing of the sequences.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(cars)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      speed           dist       
+##  Min.   : 4.0   Min.   :  2.00  
+##  1st Qu.:12.0   1st Qu.: 26.00  
+##  Median :15.0   Median : 36.00  
+##  Mean   :15.4   Mean   : 42.98  
+##  3rd Qu.:19.0   3rd Qu.: 56.00  
+##  Max.   :25.0   Max.   :120.00
+\end{verbatim}
+
+\hypertarget{including-plots}{%
+\subsection{Including Plots}\label{including-plots}}
+
+You can also embed plots, for example:
+
+\includegraphics{report_files/figure-latex/pressure-1.pdf}
+
+Note that the \texttt{echo\ =\ FALSE} parameter was added to the code
+chunk to prevent printing of the R code that generated the plot.
+
+
+\end{document}
