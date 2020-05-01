@@ -175,6 +175,18 @@ for(i in 1:nrow(betadraws)){
 }
 ppc_dens_overlay(data1$stops, z.mcmc[940:1000,]) 
 ppc_stat_2d(data1$stops, z.mcmc, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs<-c(expression(betadraws[,1]),expression(betadraws[,2]),expression(betadraws[,3],expression(betadraws[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws[thin,j],type="l",xlab="iteration",ylab=blabs[j])
+abline(h=mean(betadraws[,j]) )
+
+acf(betadraws[,j],ci.col="gray",xlab="lag")
+acf(betadraws[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-2}
@@ -202,6 +214,18 @@ for(i in 1:nrow(betadraws2)){
 }
 ppc_dens_overlay(data2$stops, z.mcmc2[940:1000,]) 
 ppc_stat_2d(data2$stops, z.mcmc2, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs2<-c(expression(betadraws2[,1]),expression(betadraws2[,2]),expression(betadraws2[,3],expression(betadraws2[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws2[thin,j],type="l",xlab="iteration",ylab=blabs2[j])
+abline(h=mean(betadraws2[,j]) )
+
+acf(betadraws2[,j],ci.col="gray",xlab="lag")
+acf(betadraws2[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-3}
@@ -229,6 +253,18 @@ for(i in 1:nrow(betadraws3)){
 }
 ppc_dens_overlay(data3$stops, z.mcmc3[940:1000,]) 
 ppc_stat_2d(data3$stops, z.mcmc3, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs3<-c(expression(betadraws3[,1]),expression(betadraws3[,2]),expression(betadraws3[,3],expression(betadraws3[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws3[thin,j],type="l",xlab="iteration",ylab=blabs3[j])
+abline(h=mean(betadraws3[,j]) )
+
+acf(betadraws3[,j],ci.col="gray",xlab="lag")
+acf(betadraws3[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-4}
@@ -256,6 +292,18 @@ for(i in 1:nrow(betadraws4)){
 }
 ppc_dens_overlay(data4$stops, z.mcmc4[940:1000,]) 
 ppc_stat_2d(data4$stops, z.mcmc4, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs4<-c(expression(betadraws4[,1]),expression(betadraws4[,2]),expression(betadraws4[,3],expression(betadraws4[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws4[thin,j],type="l",xlab="iteration",ylab=blabs4[j])
+abline(h=mean(betadraws4[,j]) )
+
+acf(betadraws4[,j],ci.col="gray",xlab="lag")
+acf(betadraws4[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 
@@ -282,8 +330,20 @@ for(i in 1:nrow(betadraws5)){
   z <- simnegbin(X5,betadraws5[i,],alphadraws5[i])
   z.mcmc5 <- rbind(z.mcmc5, z)
 }
-ppc_dens_overlay(data5$stops, z.mcmc4[940:1000,]) 
+ppc_dens_overlay(data5$stops, z.mcmc5[940:1000,]) 
 ppc_stat_2d(data5$stops, z.mcmc5, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs5<-c(expression(betadraws5[,1]),expression(betadraws5[,2]),expression(betadraws5[,3],expression(betadraws5[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws5[thin,j],type="l",xlab="iteration",ylab=blabs5[j])
+abline(h=mean(betadraws5[,j]) )
+
+acf(betadraws5[,j],ci.col="gray",xlab="lag")
+acf(betadraws5[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 
@@ -314,6 +374,18 @@ for(i in 1:nrow(betadraws6)){
 }
 ppc_dens_overlay(data6$stops, z.mcmc6[940:1000,]) 
 ppc_stat_2d(data6$stops, z.mcmc6, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs6<-c(expression(betadraws6[,1]),expression(betadraws6[,2]),expression(betadraws6[,3],expression(betadraws6[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws6[thin,j],type="l",xlab="iteration",ylab=blabs6[j])
+abline(h=mean(betadraws6[,j]) )
+
+acf(betadraws6[,j],ci.col="gray",xlab="lag")
+acf(betadraws6[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-7}
@@ -341,6 +413,18 @@ for(i in 1:nrow(betadraws7)){
 }
 ppc_dens_overlay(data7$stops, z.mcmc7[940:1000,]) 
 ppc_stat_2d(data7$stops, z.mcmc7, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs7<-c(expression(betadraws7[,1]),expression(betadraws7[,2]),expression(betadraws7[,3],expression(betadraws7[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws7[thin,j],type="l",xlab="iteration",ylab=blabs7[j])
+abline(h=mean(betadraws7[,j]) )
+
+acf(betadraws7[,j],ci.col="gray",xlab="lag")
+acf(betadraws7[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 
@@ -369,6 +453,18 @@ for(i in 1:nrow(betadraws8)){
 }
 ppc_dens_overlay(data8$stops, z.mcmc8[940:1000,]) 
 ppc_stat_2d(data8$stops, z.mcmc8, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs8<-c(expression(betadraws8[,1]),expression(betadraws8[,2]),expression(betadraws8[,3],expression(betadraws8[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws8[thin,j],type="l",xlab="iteration",ylab=blabs8[j])
+abline(h=mean(betadraws8[,j]) )
+
+acf(betadraws8[,j],ci.col="gray",xlab="lag")
+acf(betadraws8[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-9}
@@ -396,6 +492,18 @@ for(i in 1:nrow(betadraws9)){
 }
 ppc_dens_overlay(data9$stops, z.mcmc9[940:1000,]) 
 ppc_stat_2d(data9$stops, z.mcmc9, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs9<-c(expression(betadraws9[,1]),expression(betadraws9[,2]),expression(betadraws9[,3],expression(betadraws9[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws9[thin,j],type="l",xlab="iteration",ylab=blabs9[j])
+abline(h=mean(betadraws9[,j]) )
+
+acf(betadraws9[,j],ci.col="gray",xlab="lag")
+acf(betadraws9[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-10}
@@ -423,6 +531,18 @@ for(i in 1:nrow(betadraws10)){
 }
 ppc_dens_overlay(data10$stops, z.mcmc10[940:1000,]) 
 ppc_stat_2d(data10$stops, z.mcmc10, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs10<-c(expression(betadraws10[,1]),expression(betadraws10[,2]),expression(betadraws10[,3],expression(betadraws10[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws10[thin,j],type="l",xlab="iteration",ylab=blabs10[j])
+abline(h=mean(betadraws10[,j]) )
+
+acf(betadraws10[,j],ci.col="gray",xlab="lag")
+acf(betadraws10[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-11}
@@ -450,6 +570,18 @@ for(i in 1:nrow(betadraws11)){
 }
 ppc_dens_overlay(data11$stops, z.mcmc11[940:1000,]) 
 ppc_stat_2d(data11$stops, z.mcmc11, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs11<-c(expression(betadraws11[,1]),expression(betadraws11[,2]),expression(betadraws11[,3],expression(betadraws11[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws11[thin,j],type="l",xlab="iteration",ylab=blabs11[j])
+abline(h=mean(betadraws11[,j]) )
+
+acf(betadraws11[,j],ci.col="gray",xlab="lag")
+acf(betadraws11[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r bayesian-12}
@@ -477,6 +609,18 @@ for(i in 1:nrow(betadraws12)){
 }
 ppc_dens_overlay(data12$stops, z.mcmc12[940:1000,]) 
 ppc_stat_2d(data12$stops, z.mcmc12, stat = c("mean", "var"))
+
+#### Figure 10.5 (traceplots & ACF)
+par(mar=c(2.75,2.75,.5,.5),mgp=c(1.7,.7,0))
+par(mfrow=c(1,3))
+blabs12<-c(expression(betadraws12[,1]),expression(betadraws12[,2]),expression(betadraws12[,3],expression(betadraws12[,4])))
+thin<-c(1,(1:1000)*(R/1000))
+j<-4
+plot(thin,betadraws12[thin,j],type="l",xlab="iteration",ylab=blabs12[j])
+abline(h=mean(betadraws12[,j]) )
+
+acf(betadraws12[,j],ci.col="gray",xlab="lag")
+acf(betadraws12[thin,j],xlab="lag/10",ci.col="gray") #ACF of thinned chain 
 ```
 
 ```{r}
