@@ -1,8 +1,9 @@
 ---
 title: "STA360 Final Project Report"
 output:
-  rmarkdown::html_document:
-    theme: lumen
+  word_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -74,8 +75,10 @@ We generate 12 posterior distributions on the parameters $\beta$ and $\alpha$. W
 Generate chain of MCMC samples of parameters $\beta$ and $\alpha$ from 12 posterior distributions using metropolis algorithm. Since our goal is to predict stop rate for this year in order to compare to last year's arrest rate, we could simulate the predictive distribution $[Z|data]$ using the posterior distribution $[\beta|data]$. Based on the joint distribution of Z, $\beta$ and $\alpha$: 
 
 \[
+\begin{eqnarray}
 [Z, \beta, \alpha|data] \propto [Z|data, \beta, \alpha][\beta|data]\\
 =[Z|\beta, \alpha][\beta|data]
+\end{eqnarray}
 \]
 
  1. Draw S samples $\beta_1$, ..., $\beta_S$ from the posterior distribution $[\beta|data]$.
