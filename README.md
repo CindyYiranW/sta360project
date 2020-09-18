@@ -7,3 +7,6 @@ Racial profiling in policing has always been a huge point of contention. It is d
 
 ## (ii) Goals, relevant issues, and challenges
 Our goal is to find out whether minorities (black and hispanic citizens) are disproportionately targeted even when taking into account to historic crime rates (approximated by arrest rates from the previous year) and variances in precinct as a random effect. To do this, we take the approach of modelling stop rates based on previous year’s arrests, categorized by ethnicity and crime type, while making precinct a random effect in the sampling model. We then examine the coefficients of the posterior distribution to see whether past year’s crimes would affect minority and white group stop rates in a similar way.
+
+Full report: 
+https://www.linkedin.com/in/cindywangyiran/detail/overlay-view/urn:li:fsd_profileTreasuryMedia:(ACoAACWihUQBnGqL8hwjzJPA-mMYLwBOKaRuEHI,1589682496692)/
